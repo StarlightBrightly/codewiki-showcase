@@ -49,13 +49,13 @@ const repositories: Repository[] = [
     label: "deepwiki-open",
     status: "我实际使用过",
     statusTone: "verified",
-    tagline: "把仓库变成可提问、可漫游的 Wiki",
+    tagline: "让仓库中的知识可检索、可追问",
     description:
       "面向 GitHub、GitLab 与 Bitbucket 仓库的开源 DeepWiki 实现。输入仓库后，工具会分析结构、生成文档与图示，并组织为可导航的 Wiki。",
     method: "仓库解析 → 文档 / 图示 → 对话与 Code Map",
     output: "交互式 Wiki、说明图与代码导览",
-    bestFor: "需要在分享现场快速演示“读懂仓库”的效果",
-    talkPoint: "我会把它当作唯一的实战 Demo：先问一个具体问题，再沿 Code Map 回到代码。",
+    bestFor: "适合在分享现场演示如何快速理解一个仓库",
+    talkPoint: "这是本次分享唯一的实战 Demo：先提出一个具体问题，再通过 Code Map 回到代码细节。",
     details: ["支持多种代码托管平台", "可生成可视化说明", "提供 Code Map 导览"],
     url: "https://github.com/AsyncFuncAI/deepwiki-open",
   },
@@ -66,14 +66,14 @@ const repositories: Repository[] = [
     label: "langchain-ai/openwiki",
     status: "文档调研",
     statusTone: "research",
-    tagline: "把 Wiki 写回你的代码库，并随变更维护",
+    tagline: "将 Wiki 保存在代码库中，并随变更更新",
     description:
-      "一个生成并维护代码库或个人知识 Wiki 的 CLI。代理会把内容沉淀为相互链接的 Markdown，并提供供人探索的图谱可视化。",
-    method: "代理阅读源代码 → 链接 Markdown → CI 持续更新",
+      "一个为代码库或个人知识生成并维护 Wiki 的 CLI 工具。代理会读取源资料，生成相互链接的 Markdown 文档，并提供可探索的可视化图谱。",
+    method: "代理读取源代码 → 链接 Markdown → CI 持续更新",
     output: "仓库内 Wiki、OKF 内容与可探索图谱",
-    bestFor: "希望把知识资产留在 Git，并让 CI 参与维护",
-    talkPoint: "它会将 Wiki 作为随提交更新的仓库产物持续维护。",
-    details: ["CLI 形态", "代码库 / 个人知识两种模式", "支持自动化工作流更新"],
+    bestFor: "适合将知识资产留在 Git 中，并通过 CI 自动维护",
+    talkPoint: "它会把 Wiki 作为仓库产物，随着每次提交持续更新。",
+    details: ["CLI 工具", "支持代码库和个人知识两种模式", "支持自动化工作流更新"],
     url: "https://github.com/langchain-ai/openwiki",
   },
   {
@@ -83,14 +83,14 @@ const repositories: Repository[] = [
     label: "FSoft-AI4Code/CodeWiki",
     status: "文档调研",
     statusTone: "research",
-    tagline: "以层级分解和多代理处理复杂仓库",
+    tagline: "用层级分解与多代理处理复杂仓库",
     description:
-      "面向多语言仓库的自动化文档框架，覆盖函数、跨文件、跨模块与系统层面的架构理解。",
+      "面向多语言仓库的自动化文档框架，可梳理函数、跨文件调用、模块关系和系统架构。",
     method: "层级拆分 → 递归多代理 → 多模态综合",
     output: "文字文档、架构图、数据流与时序图",
     bestFor: "关注大规模、多语言代码库的结构化文档生成",
-    talkPoint: "它将重点放在架构上下文的保留、分解与结构化输出。",
-    details: ["面向九种编程语言", "递归多代理处理", "输出多类架构可视化"],
+    talkPoint: "它关注架构上下文的保留、分解与结构化输出。",
+    details: ["支持九种编程语言", "递归多代理处理", "输出多类架构可视化"],
     url: "https://github.com/FSoft-AI4Code/CodeWiki",
   },
 ];
@@ -194,7 +194,7 @@ export default function Home() {
             <Sparkles size={14} />
             {presentationMode ? "退出演讲模式" : "演讲模式"}
           </button>
-          <p>基于仓库 README 调研。Grok-Wiki 标记为实际使用，其余为阅读对比。</p>
+          <p>内容基于仓库 README 整理。Grok-Wiki 为实际使用项目；其他项目用于文档对比。</p>
         </div>
       </aside>
 
@@ -218,23 +218,23 @@ export default function Home() {
           </div>
           <div className="hero-content">
             <div className="eyebrow light"><span className="eyebrow-dot" /> 10 MIN TECH SHARE · 2026.08</div>
-            <h1>代码库很大，<br /><em>先让它</em>能被提问。</h1>
-            <p className="hero-lede">用十分钟看三种 Code Wiki 路径：即时探索、持续维护，以及面向复杂架构的生成框架。</p>
+            <h1>代码库很大，<br /><em>先让它</em>回答问题。</h1>
+            <p className="hero-lede">用十分钟梳理三条 Code Wiki 路线：即时探索、持续维护，以及面向复杂架构的生成框架。</p>
             <div className="hero-actions">
               <button className="signal-button" type="button" onClick={() => navigate("landscape")}>开始讲解 <ArrowDownRight size={17} /></button>
               <a className="quiet-link light-link" href="https://github.com/AsyncFuncAI/deepwiki-open" target="_blank" rel="noreferrer">实际使用：Grok-Wiki <ExternalLink size={14} /></a>
             </div>
           </div>
-          <div className="hero-margin-note"><span>核心判断</span><p>它们都在解释代码。<b>知识的落点与更新机制，决定了各自的工作流。</b></p></div>
+          <div className="hero-margin-note"><span>核心判断</span><p>它们都在解释代码。<b>知识如何沉淀、如何更新，决定了各自的工作流。</b></p></div>
         </section>
 
         <section id="landscape" className="project-index section-anchor">
           <div className="section-heading split-heading">
             <div>
               <div className="eyebrow"><span>01</span> 三种路径</div>
-              <h2>从你的工作流出发，<br />确定<strong>知识落点</strong>。</h2>
+              <h2>按你的工作流，<br />选择<strong>知识沉淀方式</strong>。</h2>
             </div>
-            <p>这三者都在回答“如何让仓库更可读”。它们分别采用不同的产物形态、维护方式与应用现场。</p>
+            <p>这三者都在回答“如何让仓库更易读”。它们在输出形态、维护方式和适用场景上各有侧重。</p>
           </div>
 
           <div className="project-grid">
@@ -271,9 +271,9 @@ export default function Home() {
               <div className="dossier-columns">
                 <div><span>工作流</span><p>{selectedProject.method}</p></div>
                 <div><span>主要产物</span><p>{selectedProject.output}</p></div>
-                <div><span>适合何时提起</span><p>{selectedProject.bestFor}</p></div>
+                <div><span>适用场景</span><p>{selectedProject.bestFor}</p></div>
               </div>
-              <div className="talk-note"><span>现场说法</span><p>“{selectedProject.talkPoint}”</p></div>
+              <div className="talk-note"><span>建议说法</span><p>“{selectedProject.talkPoint}”</p></div>
             </div>
           </div>
         </section>
@@ -283,16 +283,16 @@ export default function Home() {
           <div className="verified-copy">
             <div className="eyebrow"><span className="lime-marker">02</span> 实战焦点</div>
             <div className="verified-title-row">
-              <h2>Grok-Wiki：<br /><em>把真实使用放在台前。</em></h2>
+              <h2>Grok-Wiki：<br /><em>从真实使用讲起。</em></h2>
               <span className="verified-stamp"><Check size={14} /> 实际使用</span>
             </div>
-            <p className="verified-intro">本次分享以实际使用经验为中心。我实际动手使用过 <strong>deepwiki-open / Grok-Wiki</strong>；演示和经验围绕它展开，其他两项作为后续验证的技术路径。</p>
+            <p className="verified-intro">本次分享聚焦实际使用经验。我实际动手使用过 <strong>deepwiki-open / Grok-Wiki</strong>；演示和经验围绕它展开，其余两个项目用于补充说明后续可验证的技术路线。</p>
             <div className="demo-flow" aria-label="Grok-Wiki 现场演示路径">
               <div><span>01</span><strong>输入仓库</strong><p>从一个真实项目开始，不抽象谈能力。</p></div>
-              <div><span>02</span><strong>提出问题</strong><p>用一个具体的调用链或模块问题打开。</p></div>
+              <div><span>02</span><strong>提出问题</strong><p>围绕一个具体的调用链或模块提出问题。</p></div>
               <div><span>03</span><strong>回到代码</strong><p>借助 Wiki、图示与 Code Map 建立证据链。</p></div>
             </div>
-            <div className="speaker-cue"><Clock3 size={17} /><p><b>建议占用 2 分 30 秒。</b> 按“问题 → Wiki 回答 → 代码回看”三步呈现具体功能与证据。</p></div>
+            <div className="speaker-cue"><Clock3 size={17} /><p><b>建议占用 2 分 30 秒。</b> 用“问题 → Wiki 回答 → 代码回看”三步，串起具体功能和证据。</p></div>
           </div>
         </section>
 
@@ -301,17 +301,17 @@ export default function Home() {
           <div className="comparison-content">
             <div className="section-heading compact-heading">
               <div className="eyebrow"><span>03</span> 如何选择</div>
-              <h2>把比较拉回<br />你的<strong>工作流</strong>。</h2>
-              <p>下面的表格用于讲解定位，内容由各仓库 README 的公开描述提炼。它不构成性能基准或功能承诺。</p>
+              <h2>围绕你的<strong>工作流</strong><br />选择合适的工具。</h2>
+              <p>下表用于说明各项目的定位，内容根据各仓库 README 的公开描述整理。本页未进行性能测试或功能验证。</p>
             </div>
             <div className="comparison-table-wrap">
               <table>
                 <thead><tr><th>观察维度</th><th>Grok-Wiki</th><th>OpenWiki</th><th>CodeWiki</th></tr></thead>
                 <tbody>
-                  <tr><th>优先解决</th><td>快速理解并探索仓库</td><td>生成、拥有并持续维护 Wiki</td><td>保留复杂架构上下文</td></tr>
+                  <tr><th>主要关注</th><td>快速理解并探索仓库</td><td>生成、保存并持续维护 Wiki</td><td>保留复杂架构上下文</td></tr>
                   <tr><th>主要入口</th><td>交互式 Wiki / 问答体验</td><td>CLI 与仓库内 Markdown</td><td>文档生成框架与多代理流程</td></tr>
                   <tr><th>知识落点</th><td>可导航 Wiki 与 Code Map</td><td>版本控制的 Wiki / OKF</td><td>结构化文档与多类图示</td></tr>
-                  <tr><th>适合的分享句式</th><td>“让我先问这个仓库一个问题。”</td><td>“让文档成为提交的一部分。”</td><td>“规模变大后，上下文不能丢。”</td></tr>
+                  <tr><th>现场可用的说法</th><td>“我先问这个仓库一个问题。”</td><td>“让文档随着每次提交持续更新。”</td><td>“仓库变大后，架构上下文也要保留下来。”</td></tr>
                 </tbody>
               </table>
             </div>
@@ -319,11 +319,11 @@ export default function Home() {
         </section>
 
         <section className="decision-section">
-          <div className="decision-caption"><Network size={18} /><span>选择取决于具体的工作流约束。</span></div>
+          <div className="decision-caption"><Network size={18} /><span>选择时要结合具体的工作流约束。</span></div>
           <div className="decision-cards">
-            <article><div className="decision-topline"><span className="decision-number">01</span><span className="decision-context">PRESENT / NOW</span><span className="decision-icon"><ScanSearch size={19} /></span></div><h3>要做现场 Demo？</h3><p>从你已实际使用过的 Grok-Wiki 出发；让观众看到“提问”如何引导理解。</p><a href="https://github.com/AsyncFuncAI/deepwiki-open" target="_blank" rel="noreferrer">查看 deepwiki-open <ArrowUpRight size={14} /></a></article>
-            <article><div className="decision-topline"><span className="decision-number">02</span><span className="decision-context">COMMIT / MAINTAIN</span><span className="decision-icon blue"><GitBranch size={19} /></span></div><h3>要把文档留在 Git？</h3><p>OpenWiki 的 CLI、链接 Markdown 与持续更新思路更值得进一步验证。</p><a href="https://github.com/langchain-ai/openwiki" target="_blank" rel="noreferrer">查看 OpenWiki <ArrowUpRight size={14} /></a></article>
-            <article><div className="decision-topline"><span className="decision-number">03</span><span className="decision-context">SCALE / CONTEXT</span><span className="decision-icon charcoal"><Layers3 size={19} /></span></div><h3>要研究大仓库架构？</h3><p>CodeWiki 的层级拆分、递归处理与多模态输出值得深入试跑。</p><a href="https://github.com/FSoft-AI4Code/CodeWiki" target="_blank" rel="noreferrer">查看 CodeWiki <ArrowUpRight size={14} /></a></article>
+            <article><div className="decision-topline"><span className="decision-number">01</span><span className="decision-context">PRESENT / NOW</span><span className="decision-icon"><ScanSearch size={19} /></span></div><h3>准备现场演示？</h3><p>以实际使用过的 Grok-Wiki 展开，直观呈现“提问”如何帮助理解代码。</p><a href="https://github.com/AsyncFuncAI/deepwiki-open" target="_blank" rel="noreferrer">查看 deepwiki-open <ArrowUpRight size={14} /></a></article>
+            <article><div className="decision-topline"><span className="decision-number">02</span><span className="decision-context">COMMIT / MAINTAIN</span><span className="decision-icon blue"><GitBranch size={19} /></span></div><h3>希望文档留在 Git 中？</h3><p>OpenWiki 的 CLI、链接 Markdown 和持续更新机制，值得上手验证。</p><a href="https://github.com/langchain-ai/openwiki" target="_blank" rel="noreferrer">查看 OpenWiki <ArrowUpRight size={14} /></a></article>
+            <article><div className="decision-topline"><span className="decision-number">03</span><span className="decision-context">SCALE / CONTEXT</span><span className="decision-icon charcoal"><Layers3 size={19} /></span></div><h3>需要梳理大仓库架构？</h3><p>CodeWiki 的层级拆分、递归处理和多模态输出，适合进一步上手验证。</p><a href="https://github.com/FSoft-AI4Code/CodeWiki" target="_blank" rel="noreferrer">查看 CodeWiki <ArrowUpRight size={14} /></a></article>
           </div>
         </section>
 
@@ -331,9 +331,9 @@ export default function Home() {
           <div className="closing-rule"><span>04</span><div /></div>
           <div className="closing-content">
             <p className="closing-kicker">Takeaway / 10:00</p>
-            <h2>Wiki 为<strong>“代码”</strong>提供<br /><strong>“可追问的上下文”</strong>。</h2>
+            <h2>Wiki 让<strong>“代码上下文”</strong><br />可被<strong>“检索、追问和理解”</strong>。</h2>
             <div className="closing-grid">
-              <p>这次分享只对 Grok-Wiki 给出实际使用视角。OpenWiki 与 CodeWiki 则提供两个后续问题：知识能否被版本控制地维护？复杂架构能否在规模增长时仍被准确解释？</p>
+              <p>本次分享聚焦 Grok-Wiki 的实际使用体验。OpenWiki 和 CodeWiki 也带来两个后续问题：知识能否在版本控制中持续维护？复杂架构能否随着仓库规模增长继续被准确解释？</p>
               <div className="source-notes">
                 <div><FileText size={16} /><span>资料范围</span><b>三个项目的公开 README</b></div>
                 <div><Braces size={16} /><span>分享立场</span><b>实用经验 + 克制对比</b></div>
