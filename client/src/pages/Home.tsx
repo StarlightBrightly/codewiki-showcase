@@ -16,6 +16,7 @@ import {
   ExternalLink,
   FileText,
   GitBranch,
+  ImageOff,
   Layers3,
   Menu,
   Network,
@@ -61,9 +62,9 @@ const repositories: Repository[] = [
     talkPoint: "适合用作现场 Demo：从具体问题出发，再通过 Code Map 回到代码细节。",
     details: ["支持多种代码托管平台", "可生成可视化说明", "提供 Code Map 导览"],
     url: "https://github.com/AsyncFuncAI/deepwiki-open",
-    screenshot: "/manus-storage/grok-wiki-interface_8f3ad375.png",
-    screenshotAlt: "Grok-Wiki 的仓库地址输入与生成 Wiki 界面",
-    screenshotSource: "https://github.com/AsyncFuncAI/deepwiki-open/blob/main/screenshots/Interface.png",
+    screenshot: "/manus-storage/grok-wiki-official-demo_951e3c08.png",
+    screenshotAlt: "Grok-Wiki 官网展示的本地代理桌面工作区，包含项目侧栏与任务面板",
+    screenshotSource: "https://grok-wiki.com/#product-overview",
   },
   {
     id: "openwiki",
@@ -126,6 +127,7 @@ export default function Home() {
   const [railOpen, setRailOpen] = useState(false);
   const [presentationMode, setPresentationMode] = useState(false);
   const [copiedRepository, setCopiedRepository] = useState<string | null>(null);
+  const [imageLoadError, setImageLoadError] = useState(false);
 
   const selectedProject = useMemo(
     () => repositories.find((project) => project.id === activeProject) ?? repositories[0],
@@ -151,6 +153,10 @@ export default function Home() {
     window.addEventListener("scroll", updateScrollState, { passive: true });
     return () => window.removeEventListener("scroll", updateScrollState);
   }, []);
+
+  useEffect(() => {
+    setImageLoadError(false);
+  }, [activeProject]);
 
   const navigate = (id: string) => {
     setRailOpen(false);
@@ -273,7 +279,7 @@ export default function Home() {
                 className={`project-card ${project.id === activeProject ? "is-selected" : ""} ${project.statusTone === "verified" ? "is-verified" : ""}`}
                 key={project.id}
               >
-                <button className="project-card-button" type="button" onClick={() => setActiveProject(project.id)} aria-pressed={project.id === activeProject}>
+                <button className="project-card-button" type="button" onClick={() => { setActiveProject(project.id); setImageLoadError(false); }} aria-pressed={project.id === activeProject}>
                   <div className="card-topline">
                     <span className="project-number">{project.index}</span>
                     <span className={`status-chip ${project.statusTone}`}>{project.statusTone === "verified" && <Check size={12} />}{project.status}</span>
@@ -303,9 +309,23 @@ export default function Home() {
                   <a href={selectedProject.screenshotSource} target="_blank" rel="noreferrer">查看来源 <ExternalLink size={13} /></a>
                 </div>
                 <a className="dossier-visual-link" href={selectedProject.screenshotSource} target="_blank" rel="noreferrer" aria-label={`打开 ${selectedProject.name} 的界面来源`}>
-                  <img src={selectedProject.screenshot} alt={selectedProject.screenshotAlt} />
+                  {imageLoadError ? (
+                    <span className="dossier-visual-fallback" role="status">
+                      <ImageOff size={23} />
+                      <b>界面预览暂时未能加载</b>
+                      <small>可点击此处查看官方公开来源。</small>
+                    </span>
+                  ) : (
+                    <img
+                      src={selectedProject.screenshot}
+                      alt={selectedProject.screenshotAlt}
+                      loading="eager"
+                      decoding="async"
+                      onError={() => setImageLoadError(true)}
+                    />
+                  )}
                 </a>
-                <figcaption>点击界面图可打开官方来源。</figcaption>
+                <figcaption>{imageLoadError ? "已提供官方来源作为备用入口。" : "点击界面图可打开官方来源。"}</figcaption>
               </figure>
               <p className="dossier-summary">{selectedProject.description}</p>
               <div className="dossier-columns">
