@@ -55,7 +55,7 @@ const repositories: Repository[] = [
     method: "仓库解析 → 文档 / 图示 → 对话与 Code Map",
     output: "交互式 Wiki、说明图与代码导览",
     bestFor: "适合在分享现场演示如何快速理解一个仓库",
-    talkPoint: "这是本次分享唯一的实战 Demo：先提出一个具体问题，再通过 Code Map 回到代码细节。",
+    talkPoint: "适合用作现场 Demo：从具体问题出发，再通过 Code Map 回到代码细节。",
     details: ["支持多种代码托管平台", "可生成可视化说明", "提供 Code Map 导览"],
     url: "https://github.com/AsyncFuncAI/deepwiki-open",
   },
@@ -72,7 +72,7 @@ const repositories: Repository[] = [
     method: "代理读取源代码 → 链接 Markdown → CI 持续更新",
     output: "仓库内 Wiki、OKF 内容与可探索图谱",
     bestFor: "适合将知识资产留在 Git 中，并通过 CI 自动维护",
-    talkPoint: "它会把 Wiki 作为仓库产物，随着每次提交持续更新。",
+    talkPoint: "将 Wiki 作为仓库产物，随着每次提交持续更新。",
     details: ["CLI 工具", "支持代码库和个人知识两种模式", "支持自动化工作流更新"],
     url: "https://github.com/langchain-ai/openwiki",
   },
@@ -89,7 +89,7 @@ const repositories: Repository[] = [
     method: "层级拆分 → 递归多代理 → 多模态综合",
     output: "文字文档、架构图、数据流与时序图",
     bestFor: "关注大规模、多语言代码库的结构化文档生成",
-    talkPoint: "它关注架构上下文的保留、分解与结构化输出。",
+    talkPoint: "聚焦架构上下文的保留、分解与结构化输出。",
     details: ["支持九种编程语言", "递归多代理处理", "输出多类架构可视化"],
     url: "https://github.com/FSoft-AI4Code/CodeWiki",
   },
@@ -273,7 +273,7 @@ export default function Home() {
                 <div><span>主要产物</span><p>{selectedProject.output}</p></div>
                 <div><span>适用场景</span><p>{selectedProject.bestFor}</p></div>
               </div>
-              <div className="talk-note"><span>建议说法</span><p>“{selectedProject.talkPoint}”</p></div>
+              <div className="talk-note"><span>项目要点</span><p>{selectedProject.talkPoint}</p></div>
             </div>
           </div>
         </section>
