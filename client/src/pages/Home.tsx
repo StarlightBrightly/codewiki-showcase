@@ -9,10 +9,10 @@ import {
   BookOpenText,
   Braces,
   Check,
-  ChevronRight,
+  ChevronDown,
   CircleDot,
   Clock3,
-  Code2,
+  Copy,
   ExternalLink,
   FileText,
   GitBranch,
@@ -39,6 +39,9 @@ type Repository = {
   talkPoint: string;
   details: string[];
   url: string;
+  screenshot: string;
+  screenshotAlt: string;
+  screenshotSource: string;
 };
 
 const repositories: Repository[] = [
@@ -58,6 +61,9 @@ const repositories: Repository[] = [
     talkPoint: "适合用作现场 Demo：从具体问题出发，再通过 Code Map 回到代码细节。",
     details: ["支持多种代码托管平台", "可生成可视化说明", "提供 Code Map 导览"],
     url: "https://github.com/AsyncFuncAI/deepwiki-open",
+    screenshot: "/manus-storage/grok-wiki-interface_8f3ad375.png",
+    screenshotAlt: "Grok-Wiki 的仓库地址输入与生成 Wiki 界面",
+    screenshotSource: "https://github.com/AsyncFuncAI/deepwiki-open/blob/main/screenshots/Interface.png",
   },
   {
     id: "openwiki",
@@ -75,6 +81,9 @@ const repositories: Repository[] = [
     talkPoint: "将 Wiki 作为仓库产物，随着每次提交持续更新。",
     details: ["CLI 工具", "支持代码库和个人知识两种模式", "支持自动化工作流更新"],
     url: "https://github.com/langchain-ai/openwiki",
+    screenshot: "/manus-storage/openwiki-visualizer_d0d38f84.gif",
+    screenshotAlt: "OpenWiki 的文档可视化图谱与页面导航界面",
+    screenshotSource: "https://github.com/langchain-ai/openwiki/blob/main/static/visualizer.gif",
   },
   {
     id: "codewiki",
@@ -92,6 +101,9 @@ const repositories: Repository[] = [
     talkPoint: "聚焦架构上下文的保留、分解与结构化输出。",
     details: ["支持九种编程语言", "递归多代理处理", "输出多类架构可视化"],
     url: "https://github.com/FSoft-AI4Code/CodeWiki",
+    screenshot: "/manus-storage/codewiki-docs-interface_cddfe08d.png",
+    screenshotAlt: "CodeWiki 自动生成的代码库文档浏览界面",
+    screenshotSource: "https://fsoft-ai4code.github.io/CodeWiki/docs/index.html",
   },
 ];
 
@@ -113,6 +125,7 @@ export default function Home() {
   const [progress, setProgress] = useState(0);
   const [railOpen, setRailOpen] = useState(false);
   const [presentationMode, setPresentationMode] = useState(false);
+  const [copiedRepository, setCopiedRepository] = useState<string | null>(null);
 
   const selectedProject = useMemo(
     () => repositories.find((project) => project.id === activeProject) ?? repositories[0],
@@ -142,6 +155,23 @@ export default function Home() {
   const navigate = (id: string) => {
     setRailOpen(false);
     scrollToId(id);
+  };
+
+  const copyRepositoryUrl = async (id: string, url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      const helper = document.createElement("textarea");
+      helper.value = url;
+      helper.style.position = "fixed";
+      helper.style.opacity = "0";
+      document.body.appendChild(helper);
+      helper.select();
+      document.execCommand("copy");
+      document.body.removeChild(helper);
+    }
+    setCopiedRepository(id);
+    window.setTimeout(() => setCopiedRepository((current) => (current === id ? null : current)), 1600);
   };
 
   return (
@@ -251,13 +281,13 @@ export default function Home() {
                   <h3>{project.name}</h3>
                   <p className="repo-label">{project.label}</p>
                   <p className="project-tagline">{project.tagline}</p>
-                  <span className="inspect-label">展开讲解笔记 <ChevronRight size={15} /></span>
+                  <span className="inspect-label">{project.id === activeProject ? "已展开实际界面" : "查看实际界面与项目要点"} <ChevronDown size={15} /></span>
                 </button>
               </article>
             ))}
           </div>
 
-          <div className="project-dossier" aria-live="polite">
+          <div className="project-dossier" key={selectedProject.id} aria-live="polite">
             <div className="dossier-index"><span>{selectedProject.index}</span><div className="dossier-spine" /></div>
             <div className="dossier-main">
               <div className="dossier-heading">
@@ -267,6 +297,16 @@ export default function Home() {
                 </div>
                 <a className="source-link" href={selectedProject.url} target="_blank" rel="noreferrer">阅读仓库 <ExternalLink size={15} /></a>
               </div>
+              <figure className="dossier-visual">
+                <div className="dossier-visual-head">
+                  <span>官方公开界面</span>
+                  <a href={selectedProject.screenshotSource} target="_blank" rel="noreferrer">查看来源 <ExternalLink size={13} /></a>
+                </div>
+                <a className="dossier-visual-link" href={selectedProject.screenshotSource} target="_blank" rel="noreferrer" aria-label={`打开 ${selectedProject.name} 的界面来源`}>
+                  <img src={selectedProject.screenshot} alt={selectedProject.screenshotAlt} />
+                </a>
+                <figcaption>点击界面图可打开官方来源。</figcaption>
+              </figure>
               <p className="dossier-summary">{selectedProject.description}</p>
               <div className="dossier-columns">
                 <div><span>工作流</span><p>{selectedProject.method}</p></div>
@@ -340,8 +380,28 @@ export default function Home() {
                 <div><BookOpenText size={16} /><span>下一步</span><b>拿同一仓库做小规模验证</b></div>
               </div>
             </div>
-            <div className="repository-links">
-              {repositories.map((project) => <a key={project.id} href={project.url} target="_blank" rel="noreferrer"><CircleDot size={12} /> {project.name} <ExternalLink size={13} /></a>)}
+            <div className="aftertalk-kit" aria-label="会后仓库链接清单">
+              <div className="aftertalk-heading">
+                <div>
+                  <span className="closing-kicker">After the talk</span>
+                  <h3>会后仓库链接清单</h3>
+                </div>
+                <p>点击“复制链接”即可将仓库地址保存到剪贴板，便于会后继续验证和阅读。</p>
+              </div>
+              <div className="repo-copy-list">
+                {repositories.map((project) => (
+                  <div className="repo-copy-item" key={project.id}>
+                    <span className="repo-copy-index">{project.index}</span>
+                    <div>
+                      <a href={project.url} target="_blank" rel="noreferrer">{project.name} <ExternalLink size={13} /></a>
+                      <code>{project.url}</code>
+                    </div>
+                    <button type="button" onClick={() => copyRepositoryUrl(project.id, project.url)} aria-label={`复制 ${project.name} 仓库链接`}>
+                      {copiedRepository === project.id ? <><Check size={14} /> 已复制</> : <><Copy size={14} /> 复制链接</>}
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
