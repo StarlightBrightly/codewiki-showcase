@@ -1,0 +1,44 @@
+/* Style context — 维护者的工作台：将产品阵营作为档案分组，让 DeepWiki 的 MCP 接入成为可见的研究记录。 */
+.camp-sections { display: grid; gap: 64px; margin-top: 60px; }
+.camp-section { padding-top: 20px; border-top: 1px solid #c9c9c0; }
+.camp-heading { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 48px; align-items: end; }
+.camp-heading h3 { max-width: 620px; margin: 12px 0 0; font: 700 clamp(26px, 3vw, 42px)/1.18 "Noto Serif SC", serif; letter-spacing: -.055em; }
+.camp-heading p { margin: 0; color: #4c534b; font-size: 13px; line-height: 1.75; }
+.project-grid { margin-top: 28px; }
+.project-grid.camp-grid-closed { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.status-chip.connected { border-color: #8caac7; background: #e2edf6; color: #31536e; }
+
+.devin-section { display: grid; grid-template-columns: 1.05fr .95fr; background: #e9e6dc; }
+.devin-copy { padding: 92px 6vw 92px 9vw; }
+.devin-copy h2 { margin: 17px 0 0; font: 700 clamp(35px, 4vw, 55px)/1.1 "Noto Serif SC", serif; letter-spacing: -.06em; }
+.devin-copy h2 em { color: #4c671d; font-style: normal; }
+.devin-intro { max-width: 600px; margin: 29px 0 0; color: #3e463e; font-size: 15px; line-height: 1.85; }
+.devin-chain { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 38px; }
+.devin-chain div { padding: 13px 0 0; border-top: 1px solid #b8b8ad; }
+.devin-chain span, .mcp-note span { color: #62705d; font: 10px "IBM Plex Mono", monospace; }
+.devin-chain strong { display: block; margin-top: 8px; font-size: 14px; }
+.devin-chain p { margin: 7px 0 0; color: #555d55; font-size: 12px; line-height: 1.6; }
+.mcp-note { display: flex; gap: 11px; margin-top: 30px; padding: 15px; border-left: 3px solid #c7f36b; background: #f4f2ea; color: #35511a; }
+.mcp-note svg { flex: 0 0 auto; margin-top: 2px; }
+.mcp-note p { margin: 6px 0 0; color: #475243; font-size: 12px; line-height: 1.7; }
+.devin-docs-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 22px; color: #385316; font-size: 12px; font-weight: 700; }
+.devin-visual { display: flex; min-height: 100%; flex-direction: column; justify-content: center; margin: 0; padding: 60px 6vw 60px 3vw; background: #d8d7cf; }
+.devin-visual img { display: block; width: 100%; border: 1px solid #b6b7ad; box-shadow: 12px 14px 0 #20231e; }
+.devin-visual figcaption { margin-top: 18px; color: #5c645a; font: 10px/1.65 "IBM Plex Mono", monospace; }
+
+.decision-cards.four-cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+@media (max-width: 1120px) {
+  .project-grid.camp-grid-closed, .decision-cards.four-cards { grid-template-columns: 1fr; }
+  .devin-section { grid-template-columns: 1fr; }
+  .devin-visual { padding: 56px 6vw; }
+}
+
+@media (max-width: 800px) {
+  .camp-heading { display: block; }
+  .camp-heading p { margin-top: 22px; }
+  .camp-sections { gap: 48px; margin-top: 42px; }
+  .devin-copy { padding: 68px 7vw; }
+  .devin-chain { grid-template-columns: 1fr; gap: 14px; }
+  .devin-visual { padding: 42px 7vw; }
+}
