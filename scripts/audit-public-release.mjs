@@ -266,6 +266,28 @@ async function fileExists(filePath) {
 
 async function listAssetFiles(rootDir) {
   const assetDirectory = path.join(rootDir, "client/public/manus-storage");
+  let assetDirectoryStat;
+  try {
+    assetDirectoryStat = await lstat(assetDirectory);
+  } catch (error) {
+    if (error?.code === "ENOENT") {
+      return {
+        files: [],
+        symlinkAssetFiles: [],
+        symlinkAssetDirectories: [],
+      };
+    }
+    throw error;
+  }
+
+  if (assetDirectoryStat.isSymbolicLink()) {
+    return {
+      files: [],
+      symlinkAssetFiles: [],
+      symlinkAssetDirectories: ["client/public/manus-storage"],
+    };
+  }
+
   async function walk(directory, relativeDirectory) {
     let entries;
     try {
@@ -299,6 +321,7 @@ async function listAssetFiles(rootDir) {
   return {
     files: result.files.sort(),
     symlinkAssetFiles: result.symlinkAssetFiles.sort(),
+    symlinkAssetDirectories: [],
   };
 }
 
@@ -322,8 +345,11 @@ export async function validateAssetClosure({
   const mappingEntries = Object.entries(mapping);
   const mappingTargets = mappingEntries.map(([, target]) => target);
   const missing = [];
-  const { files: assetFiles, symlinkAssetFiles } =
-    await listAssetFiles(rootDir);
+  const {
+    files: assetFiles,
+    symlinkAssetFiles,
+    symlinkAssetDirectories,
+  } = await listAssetFiles(rootDir);
 
   for (const target of mappingTargets) {
     const relativeTarget = target.replace(/^\//, "");
@@ -366,6 +392,7 @@ export async function validateAssetClosure({
     missing,
     unmappedAssetFiles,
     symlinkAssetFiles,
+    symlinkAssetDirectories,
     homeReferenceCount: homeRefs.length,
     unmapped,
     unnoted,
@@ -402,6 +429,8 @@ function collectFindings(current, history, assets, license) {
     findings.push("history-sensitive-path-match");
   }
   if (assets.missing.length > 0) findings.push("missing-asset");
+  if (assets.symlinkAssetDirectories.length > 0)
+    findings.push("symlink-asset-directory");
   if (assets.symlinkAssetFiles.length > 0) findings.push("symlink-asset-file");
   if (assets.unmappedAssetFiles.length > 0)
     findings.push("unmapped-asset-file");

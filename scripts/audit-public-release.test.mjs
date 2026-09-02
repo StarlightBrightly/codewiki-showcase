@@ -66,6 +66,7 @@ async function createGitFixture({
   removedAssets = false,
   secret,
   symlinkAsset = false,
+  symlinkAssetRoot = false,
   unicodeSensitivePath = false,
   assetDatabaseUris,
   directoryPrefix,
@@ -78,16 +79,19 @@ async function createGitFixture({
     mapping["asset-metadata.txt"] = "/manus-storage/asset-metadata.txt";
     notedAssets.push("asset-metadata.txt");
   }
+  const assetRoot = symlinkAssetRoot
+    ? "client/public/manus-storage-target"
+    : "client/public/manus-storage";
   const fixtureFiles = {
     ".gitignore": ".env\n",
     LICENSE: `${licenseSecret ?? "MIT License"}\n`,
     "package.json": JSON.stringify({ license: licenseSecret ?? "MIT" }) + "\n",
     "client/src/pages/Home.tsx":
       'export const image = "/manus-storage/registered.png";\n',
-    "client/public/manus-storage/registered.png": "fixture\n",
+    [`${assetRoot}/registered.png`]: "fixture\n",
     ...(assetDatabaseUris
       ? {
-          "client/public/manus-storage/asset-metadata.txt": `${assetDatabaseUris}\n`,
+          [`${assetRoot}/asset-metadata.txt`]: `${assetDatabaseUris}\n`,
         }
       : {}),
     ...(unmappedAsset
@@ -121,6 +125,12 @@ async function createGitFixture({
 
   const directory = await createTemporaryTree(fixtureFiles, directoryPrefix);
 
+  if (symlinkAssetRoot) {
+    await symlink(
+      "manus-storage-target",
+      path.join(directory, "client/public/manus-storage")
+    );
+  }
   if (symlinkAsset) {
     await symlink(
       "../../../outside.txt",
@@ -515,6 +525,19 @@ describe("CLI", () => {
       "client/public/manus-storage/linked.txt",
     ]);
     assert.deepEqual(output.findings, ["symlink-asset-file"]);
+  });
+
+  it("exits 1 when the asset root is a symlink", async () => {
+    const directory = await createGitFixture({ symlinkAssetRoot: true });
+
+    const result = await runCli(directory);
+    const output = JSON.parse(result.stdout);
+
+    assert.equal(result.exitCode, 1);
+    assert.deepEqual(output.assets.symlinkAssetDirectories, [
+      "client/public/manus-storage",
+    ]);
+    assert.deepEqual(output.findings, ["symlink-asset-directory"]);
   });
 
   it("reports removed screenshots even when manifests omit homepage references", async () => {
