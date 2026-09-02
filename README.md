@@ -1,5 +1,7 @@
 # Code Wiki Showcase
 
+[![许可证：MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 面向技术分享的 Code Wiki 工具研究与对比工作台。
 
 本项目是一个基于 React、Vite 和 Express 的全栈单页网站，用于在约 10 分钟的技术分享中，对照开源 Code Wiki 项目与闭源产品的获取方式、工作流和知识沉淀方式。首页将 DeepWiki-Open、OpenWiki、CodeWiki、Grok-Wiki 以及 Devin / DeepWiki 分为“开源项目”和“闭源产品 / 服务”两组展示。
@@ -186,3 +188,8 @@ pnpm build
 ## 许可证
 
 本项目使用 [MIT License](LICENSE) 发布，标准许可证文本可参阅 [Open Source Initiative 的 MIT License](https://opensource.org/license/mit/)。第三方项目名称、产品名称、截图和其他展示素材仍归其各自权利人所有；素材使用范围和来源记录见 [`asset_sources.md`](asset_sources.md)。
+
+- [参与贡献](CONTRIBUTING.md)
+- [安全报告](SECURITY.md)
+- [社区讨论](https://github.com/StarlightBrightly/codewiki-showcase/discussions)
+- [第三方素材声明](THIRD_PARTY_NOTICES.md)

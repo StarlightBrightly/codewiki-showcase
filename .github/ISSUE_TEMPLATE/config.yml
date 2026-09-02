@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 社区讨论
+    url: https://github.com/StarlightBrightly/codewiki-showcase/discussions
+    about: 提出问题、交流想法或分享使用经验。
+  - name: 私下安全报告
+    url: https://github.com/StarlightBrightly/codewiki-showcase/security/advisories/new
+    about: 仅通过 GitHub Security Advisory 私下报告漏洞、泄露凭据和敏感信息。
+  - name: 贡献指南
+    url: https://github.com/StarlightBrightly/codewiki-showcase/blob/main/CONTRIBUTING.md
+    about: 查看开发环境、本地验证和 Pull Request 要求。
+  - name: 安全政策
+    url: https://github.com/StarlightBrightly/codewiki-showcase/blob/main/SECURITY.md
+    about: 查看支持范围、私下报告和响应时限。
