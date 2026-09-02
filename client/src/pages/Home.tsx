@@ -181,7 +181,7 @@ function scrollToId(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-function ProjectDossier({
+export function ProjectDossier({
   project,
   imageLoadError,
   onImageError,
