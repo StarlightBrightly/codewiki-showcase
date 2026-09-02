@@ -261,16 +261,29 @@ async function fileExists(filePath) {
 
 async function listAssetFiles(rootDir) {
   const assetDirectory = path.join(rootDir, "client/public/manus-storage");
-  let entries;
-  try {
-    entries = await readdir(assetDirectory, { withFileTypes: true });
-  } catch (error) {
-    if (error?.code === "ENOENT") return [];
-    throw error;
+  async function walk(directory, relativeDirectory) {
+    let entries;
+    try {
+      entries = await readdir(directory, { withFileTypes: true });
+    } catch (error) {
+      if (error?.code === "ENOENT") return [];
+      throw error;
+    }
+
+    const files = [];
+    for (const entry of entries) {
+      const entryPath = path.join(directory, entry.name);
+      const relativePath = path.posix.join(relativeDirectory, entry.name);
+      if (entry.isDirectory()) {
+        files.push(...(await walk(entryPath, relativePath)));
+      } else if (entry.isFile()) {
+        files.push(relativePath);
+      }
+    }
+    return files;
   }
-  return entries
-    .filter(entry => entry.isFile())
-    .map(entry => `client/public/manus-storage/${entry.name}`);
+
+  return (await walk(assetDirectory, "client/public/manus-storage")).sort();
 }
 
 export async function validateAssetClosure({
