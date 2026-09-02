@@ -39,6 +39,8 @@
 - `grok-wiki-official-demo_ehbhr5hr.png`：原来源为 [Grok-Wiki 官网产品演示区](https://grok-wiki.com/#product-overview)；因未发现明确的再发布许可，已从发布范围移除。
 - `deepwiki-official-ui_pa7wq5ja.png`：原来源为 [Cognition 的 DeepWiki 介绍](https://cognition.com/blog/deepwiki)；因未发现明确的再发布许可，已从发布范围移除。
 
+当前版本树已删除上述两项素材，但它们仍存在于本仓库的历史提交对象中。根据本轮“不重写 Git 历史”的约束，本次没有清除历史对象，因此公开仓库后历史版本可能仍可访问这些文件；本声明不授予任何历史截图的再发布权。若要彻底清除历史对象，需要另行确认授权并执行经过评审的历史重写流程。
+
 ## 品牌和网页内容边界
 
 DeepWiki-Open、OpenWiki、CodeWiki、Grok-Wiki、Devin、DeepWiki 及相关标识、品牌、商标、产品名称和网页内容仍归各自权利人所有。除上文明确列出的开源项目许可证所授予的范围外，本项目 MIT 许可证不覆盖第三方品牌、商标、产品名称、网页内容或闭源产品宣传素材。
