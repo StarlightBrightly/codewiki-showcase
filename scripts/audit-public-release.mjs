@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
-import { access, readFile } from "node:fs/promises";
+import { access, readdir, readFile } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const SECRET_PATTERN = [
   "AKIA[0-9A-Z]{16}",
@@ -16,7 +17,7 @@ const SECRET_PATTERN = [
 ].join("|");
 
 const SENSITIVE_PATH_PATTERN =
-  /(^|\/)(?:\.env(?:$|\.)|.*(?:private|secret|credential|password|passwd|token|apikey|api-key).*|id_rsa(?:$|\.)|.*\.(?:pem|p12|pfx|key|crt|cer))$/i;
+  /(^|\/)(?:\.env(?:$|\..*)|.*(?:private|secret|credential|password|passwd|token|apikey|api-key).*|id_rsa(?:$|\.)|.*\.(?:pem|p12|pfx|key|crt|cer))$/i;
 
 const REMOVED_SCREENSHOTS = [
   "client/public/manus-storage/grok-wiki-official-demo_ehbhr5hr.png",
@@ -83,6 +84,29 @@ function parseLineSeparatedPaths(output) {
 
 function unique(values) {
   return [...new Set(values)];
+}
+
+export function findUnmappedAssetFiles(assetFiles, mappingTargets) {
+  const mappedFiles = new Set(
+    mappingTargets.map(target => `client/public${target}`)
+  );
+  return assetFiles.filter(filePath => !mappedFiles.has(filePath));
+}
+
+export function isSensitivePath(filePath) {
+  return SENSITIVE_PATH_PATTERN.test(filePath);
+}
+
+export function findUnnotedAssets(assetNames, sources, notices) {
+  return assetNames.filter(
+    name => !sources.includes(`\`${name}\``) || !notices.includes(`\`${name}\``)
+  );
+}
+
+export function isCliEntry(moduleUrl, argvPath) {
+  return (
+    Boolean(argvPath) && fileURLToPath(moduleUrl) === path.resolve(argvPath)
+  );
 }
 
 export function runCommand(command, args, options = {}) {
@@ -195,7 +219,7 @@ export async function scanGitHistory({
       "--",
     ]);
     const sensitivePaths = parseLineSeparatedPaths(pathResult.stdout).filter(
-      filePath => SENSITIVE_PATH_PATTERN.test(filePath)
+      filePath => isSensitivePath(filePath)
     );
 
     commitResults.push({
@@ -235,6 +259,20 @@ async function fileExists(filePath) {
   }
 }
 
+async function listAssetFiles(rootDir) {
+  const assetDirectory = path.join(rootDir, "client/public/manus-storage");
+  let entries;
+  try {
+    entries = await readdir(assetDirectory, { withFileTypes: true });
+  } catch (error) {
+    if (error?.code === "ENOENT") return [];
+    throw error;
+  }
+  return entries
+    .filter(entry => entry.isFile())
+    .map(entry => `client/public/manus-storage/${entry.name}`);
+}
+
 export async function validateAssetClosure({
   rootDir = process.cwd(),
   execute = runCommand,
@@ -255,6 +293,7 @@ export async function validateAssetClosure({
   const mappingEntries = Object.entries(mapping);
   const mappingTargets = mappingEntries.map(([, target]) => target);
   const missing = [];
+  const assetFiles = await listAssetFiles(rootDir);
 
   for (const target of mappingTargets) {
     const relativeTarget = target.replace(/^\//, "");
@@ -266,9 +305,12 @@ export async function validateAssetClosure({
     [...home.matchAll(/\/manus-storage\/[^'"`\s)]+/g)].map(match => match[0])
   );
   const unmapped = homeRefs.filter(ref => !mappingTargets.includes(ref));
-  const unnoted = mappingEntries
-    .filter(([name]) => !sources.includes(`\`${name}\``))
-    .map(([name]) => name);
+  const unnoted = findUnnotedAssets(
+    mappingEntries.map(([name]) => name),
+    sources,
+    notices
+  );
+  const unmappedAssetFiles = findUnmappedAssetFiles(assetFiles, mappingTargets);
   const oldCodeRefs = REMOVED_SCREENSHOTS.filter(filePath =>
     home.includes(filePath.replace("client/public", ""))
   );
@@ -286,6 +328,7 @@ export async function validateAssetClosure({
   return {
     mappingEntries: mappingEntries.length,
     missing,
+    unmappedAssetFiles,
     homeReferenceCount: homeRefs.length,
     unmapped,
     unnoted,
@@ -321,6 +364,8 @@ function collectFindings(current, history, assets, license) {
     findings.push("history-sensitive-path-match");
   }
   if (assets.missing.length > 0) findings.push("missing-asset");
+  if (assets.unmappedAssetFiles.length > 0)
+    findings.push("unmapped-asset-file");
   if (assets.unmapped.length > 0) findings.push("unmapped-asset-reference");
   if (assets.unnoted.length > 0) findings.push("unnoted-asset");
   if (assets.oldCodeRefs.length > 0)
@@ -379,6 +424,6 @@ export async function main() {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isCliEntry(import.meta.url, process.argv[1])) {
   await main();
 }

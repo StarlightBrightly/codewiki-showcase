@@ -3,8 +3,9 @@ import assert from "node:assert/strict";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
-import { scanCurrentTree } from "./audit-public-release.mjs";
+import * as audit from "./audit-public-release.mjs";
 
 const temporaryDirectories = [];
 
@@ -39,7 +40,7 @@ describe("scanCurrentTree", () => {
       ".env": `OPENAI_API_KEY=${secret}\n`,
     });
 
-    const result = await scanCurrentTree({ rootDir: directory });
+    const result = await audit.scanCurrentTree({ rootDir: directory });
 
     assert.equal(result.rgExitCode, 0);
     assert.deepEqual(result.matchedPaths, [".env"]);
@@ -52,7 +53,7 @@ describe("scanCurrentTree", () => {
       "README.md": "This file contains no credentials.\n",
     });
 
-    const result = await scanCurrentTree({ rootDir: directory });
+    const result = await audit.scanCurrentTree({ rootDir: directory });
 
     assert.equal(result.rgExitCode, 1);
     assert.deepEqual(result.matchedPaths, []);
@@ -65,8 +66,51 @@ describe("scanCurrentTree", () => {
     );
 
     await assert.rejects(
-      scanCurrentTree({ rootDir: missingDirectory }),
+      audit.scanCurrentTree({ rootDir: missingDirectory }),
       /rg.*(exit code 2|failed)/i
+    );
+  });
+
+  it("finds a direct asset file that is absent from the mapping", () => {
+    assert.deepEqual(
+      audit.findUnmappedAssetFiles(
+        [
+          "client/public/manus-storage/registered.png",
+          "client/public/manus-storage/unmapped.png",
+        ],
+        ["/manus-storage/registered.png"]
+      ),
+      ["client/public/manus-storage/unmapped.png"]
+    );
+  });
+
+  it("treats .env.local and .env.production.local as sensitive paths", () => {
+    assert.equal(audit.isSensitivePath("config/.env"), true);
+    assert.equal(audit.isSensitivePath("config/.env.local"), true);
+    assert.equal(audit.isSensitivePath("config/.env.production.local"), true);
+  });
+
+  it("recognizes the CLI entry when the script path contains spaces", () => {
+    const scriptPath = path.join(
+      os.tmpdir(),
+      "audit public release",
+      "audit.mjs"
+    );
+
+    assert.equal(
+      audit.isCliEntry(pathToFileURL(scriptPath).href, scriptPath),
+      true
+    );
+  });
+
+  it("reports an asset as unnoted when either source list omits it", () => {
+    assert.deepEqual(
+      audit.findUnnotedAssets(
+        ["registered.png", "missing-notice.png"],
+        "`registered.png`",
+        "`registered.png`"
+      ),
+      ["missing-notice.png"]
     );
   });
 });
