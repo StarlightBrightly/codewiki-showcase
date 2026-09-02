@@ -222,7 +222,7 @@
 
 - [ ] **步骤 3：创建 CodeQL 工作流**
 
-  创建 `name: CodeQL` 的工作流，在 `push` 到 `main`、面向 `main` 的 Pull Request 和每周计划任务上运行；使用 `github/codeql-action/init@v3` 与 `github/codeql-action/analyze@v3`，语言为 `javascript-typescript`，构建模式为 `none`，job id/name 固定为 `analyze`，权限最小化为 `contents: read`、`actions: read`、`packages: read` 和 `security-events: write`。
+  创建 `name: CodeQL` 的工作流，在 `push` 到 `main`、面向 `main` 的 Pull Request 和每周计划任务上运行；使用当前官方支持的 `github/codeql-action/init@v4` 与 `github/codeql-action/analyze@v4`，语言为 `javascript-typescript`，构建模式为 `none`，job id/name 固定为 `analyze`，权限最小化为 `contents: read`、`actions: read`、`packages: read` 和 `security-events: write`。
 
 - [ ] **步骤 4：创建依赖审查工作流**
 
