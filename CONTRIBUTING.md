@@ -54,4 +54,4 @@ pnpm build
 - [ ] 已说明数据库、迁移或其他破坏性变更，并确认目标环境要求。
 - [ ] 已说明是否存在破坏性变更；没有则明确写明“无”。
 
-详细模板见[安全政策](SECURITY.md)。请勿在公开 Issue、Pull Request 或 Discussion 中发布漏洞细节或敏感信息。
+提交模板见[Pull Request 模板](.github/PULL_REQUEST_TEMPLATE.md)，安全问题处理方式见[安全政策](SECURITY.md)。请勿在公开 Issue、Pull Request 或 Discussion 中发布漏洞细节或敏感信息。
