@@ -262,6 +262,8 @@
 - 验证：当前 Git 工作树和所有可达提交
 - 验证：`client/public/manus-storage`、`asset-mapping.json`、`asset_sources.md`、`THIRD_PARTY_NOTICES.md`
 
+审计报告必须明确区分 Task 2 的 `README.md`/`CONTRIBUTING.md` 变更与 Task 4 各轮实际提交的文件归属，不得将前者或未由本轮修改的文件表述为 Task 4 文件。
+
 **接口：**
 
 - 消费：任务 1–3 的文件和执行审计时由 `git rev-list --all` 得到的全部可达提交。
