@@ -259,6 +259,20 @@ describe("scanCurrentTree", () => {
     assert.equal(JSON.stringify(result).includes(secret), false);
   });
 
+  it("excludes local transcripts and nested worktrees from the current scan", async () => {
+    const secret = credentialUri("postgres");
+    const directory = await createTemporaryTree({
+      ".specstory/history/session.md": `${secret}\n`,
+      ".worktrees/feature/config/database.txt": `${secret}\n`,
+      "README.md": "This file contains no credentials.\n",
+    });
+
+    const result = await audit.scanCurrentTree({ rootDir: directory });
+
+    assert.equal(result.rgExitCode, 1);
+    assert.deepEqual(result.matchedPaths, []);
+  });
+
   it("returns a clean result when the current tree has no credential match", async () => {
     const directory = await createTemporaryTree({
       ".gitignore": ".env\n",
