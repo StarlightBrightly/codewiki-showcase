@@ -13,4 +13,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 检查依赖变更
-        uses: actions/dependency-review-action@v4
+        uses: actions/dependency-review-action@v5
