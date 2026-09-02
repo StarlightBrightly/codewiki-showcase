@@ -13,7 +13,7 @@ const SECRET_PATTERN = [
   "npm_[A-Za-z0-9]{20,}",
   "AIza[0-9A-Za-z_-]{30,}",
   "-----BEGIN (RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----",
-  "https?://[^[:space:]/]+:[^[:space:]@]+@",
+  "(mysql|mysql2|postgres|postgresql|mongodb|mongodb\\+srv|redis)://[^[:space:]/]*:[^[:space:]@]+@",
 ].join("|");
 
 const SENSITIVE_PATH_PATTERN =
@@ -69,9 +69,8 @@ function commandLabel(command, args) {
 function parseNullSeparatedPaths(output) {
   return output
     .split("\0")
-    .map(value => value.trim())
-    .filter(Boolean)
-    .map(value => value.replace(/^\.\//, ""));
+    .filter(value => value.length > 0)
+    .map(value => (value.startsWith("./") ? value.slice(2) : value));
 }
 
 function parseLineSeparatedPaths(output) {
@@ -80,6 +79,13 @@ function parseLineSeparatedPaths(output) {
     .map(value => value.trim())
     .filter(Boolean)
     .map(value => value.replace(/^\.\//, ""));
+}
+
+function parseGitGrepPaths(output, commit) {
+  const prefix = `${commit}:`;
+  return parseNullSeparatedPaths(output).map(filePath =>
+    filePath.startsWith(prefix) ? filePath.slice(prefix.length) : filePath
+  );
 }
 
 function unique(values) {
@@ -205,7 +211,7 @@ export async function scanGitHistory({
     const contentResult = await executeOrThrow(
       execute,
       "git",
-      ["grep", "-I", "-l", "-E", SECRET_PATTERN, commit, "--"],
+      ["grep", "-I", "-l", "-z", "-E", SECRET_PATTERN, commit, "--"],
       rootDir,
       [0, 1],
       "git grep"
@@ -214,11 +220,12 @@ export async function scanGitHistory({
     const pathResult = await runGit(execute, rootDir, [
       "ls-tree",
       "-r",
+      "-z",
       "--name-only",
       commit,
       "--",
     ]);
-    const sensitivePaths = parseLineSeparatedPaths(pathResult.stdout).filter(
+    const sensitivePaths = parseNullSeparatedPaths(pathResult.stdout).filter(
       filePath => isSensitivePath(filePath)
     );
 
@@ -226,8 +233,9 @@ export async function scanGitHistory({
       commit,
       contentScan: {
         exitCode: contentResult.exitCode,
-        matchedPathCount: parseLineSeparatedPaths(contentResult.stdout).length,
-        matchedPaths: parseLineSeparatedPaths(contentResult.stdout),
+        matchedPathCount: parseGitGrepPaths(contentResult.stdout, commit)
+          .length,
+        matchedPaths: parseGitGrepPaths(contentResult.stdout, commit),
       },
       sensitivePathScan: {
         exitCode: pathResult.exitCode,
@@ -266,24 +274,35 @@ async function listAssetFiles(rootDir) {
     try {
       entries = await readdir(directory, { withFileTypes: true });
     } catch (error) {
-      if (error?.code === "ENOENT") return [];
+      if (error?.code === "ENOENT") {
+        return { files: [], symlinkAssetFiles: [] };
+      }
       throw error;
     }
 
     const files = [];
+    const symlinkAssetFiles = [];
     for (const entry of entries) {
       const entryPath = path.join(directory, entry.name);
       const relativePath = path.posix.join(relativeDirectory, entry.name);
       if (entry.isDirectory()) {
-        files.push(...(await walk(entryPath, relativePath)));
+        const child = await walk(entryPath, relativePath);
+        files.push(...child.files);
+        symlinkAssetFiles.push(...child.symlinkAssetFiles);
       } else if (entry.isFile()) {
         files.push(relativePath);
+      } else if (entry.isSymbolicLink()) {
+        symlinkAssetFiles.push(relativePath);
       }
     }
-    return files;
+    return { files, symlinkAssetFiles };
   }
 
-  return (await walk(assetDirectory, "client/public/manus-storage")).sort();
+  const result = await walk(assetDirectory, "client/public/manus-storage");
+  return {
+    files: result.files.sort(),
+    symlinkAssetFiles: result.symlinkAssetFiles.sort(),
+  };
 }
 
 export async function validateAssetClosure({
@@ -306,7 +325,8 @@ export async function validateAssetClosure({
   const mappingEntries = Object.entries(mapping);
   const mappingTargets = mappingEntries.map(([, target]) => target);
   const missing = [];
-  const assetFiles = await listAssetFiles(rootDir);
+  const { files: assetFiles, symlinkAssetFiles } =
+    await listAssetFiles(rootDir);
 
   for (const target of mappingTargets) {
     const relativeTarget = target.replace(/^\//, "");
@@ -324,6 +344,12 @@ export async function validateAssetClosure({
     notices
   );
   const unmappedAssetFiles = findUnmappedAssetFiles(assetFiles, mappingTargets);
+  const removedAssetFiles = [];
+  for (const filePath of REMOVED_SCREENSHOTS) {
+    if (await fileExists(path.join(rootDir, filePath))) {
+      removedAssetFiles.push(filePath);
+    }
+  }
   const oldCodeRefs = REMOVED_SCREENSHOTS.filter(filePath =>
     home.includes(filePath.replace("client/public", ""))
   );
@@ -342,23 +368,25 @@ export async function validateAssetClosure({
     mappingEntries: mappingEntries.length,
     missing,
     unmappedAssetFiles,
+    symlinkAssetFiles,
     homeReferenceCount: homeRefs.length,
     unmapped,
     unnoted,
+    removedAssetFiles,
     oldCodeRefs,
     thirdPartyMitBoundary: notices.includes("不受本项目 MIT 许可证覆盖"),
     historicalScreenshotBlobs,
   };
 }
 
-async function validateLicense(rootDir) {
+export async function validateLicense(rootDir) {
   const licenseFirstLine = (
     await readFile(path.join(rootDir, "LICENSE"), "utf8")
   ).split("\n", 1)[0];
   const packageJson = await readJson(path.join(rootDir, "package.json"));
   return {
-    licenseFirstLine,
-    packageLicense: packageJson.license,
+    licenseFirstLine: licenseFirstLine === "MIT License" ? "expected" : "other",
+    packageLicense: packageJson.license === "MIT" ? "expected" : "other",
     passed: licenseFirstLine === "MIT License" && packageJson.license === "MIT",
   };
 }
@@ -377,12 +405,15 @@ function collectFindings(current, history, assets, license) {
     findings.push("history-sensitive-path-match");
   }
   if (assets.missing.length > 0) findings.push("missing-asset");
+  if (assets.symlinkAssetFiles.length > 0) findings.push("symlink-asset-file");
   if (assets.unmappedAssetFiles.length > 0)
     findings.push("unmapped-asset-file");
   if (assets.unmapped.length > 0) findings.push("unmapped-asset-reference");
   if (assets.unnoted.length > 0) findings.push("unnoted-asset");
   if (assets.oldCodeRefs.length > 0)
     findings.push("removed-asset-code-reference");
+  if (assets.removedAssetFiles.length > 0)
+    findings.push("removed-asset-present");
   if (!assets.thirdPartyMitBoundary)
     findings.push("missing-third-party-license-boundary");
   if (!license.passed) findings.push("license-metadata-mismatch");

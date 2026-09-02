@@ -13,7 +13,8 @@
 
 - 素材：`openwiki-visualizer.gif`。
 - 来源目录：[langchain-ai/openwiki/static](https://github.com/langchain-ai/openwiki/tree/main/static)，对应文件 `visualizer.gif`。
-- 上游许可证：[MIT License](https://github.com/langchain-ai/openwiki/blob/main/LICENSE)。
+- 上游许可证：[MIT License](https://github.com/langchain-ai/openwiki/blob/main/LICENSE)，版权声明为 `Copyright (c) 2026`。
+- 上述版权声明对应本条登记的 `openwiki-visualizer.gif` 素材及其上游文件 `visualizer.gif`。
 - 本项目仅按当前清单记录该公开仓库素材来源，不扩展上游许可证对本项目其他内容的覆盖范围。
 
 ## 本项目视觉资产

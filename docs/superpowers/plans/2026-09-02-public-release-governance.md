@@ -330,19 +330,21 @@
   git push origin main
   ```
 
-  推送前再次执行当前文件和历史审计；推送后读取 GitHub Actions 运行状态。
+  推送前再次执行当前文件和历史审计；推送目标提交后，使用 `gh api` 读取该提交的
+  `check-runs[].name`，等待对应 CI 和 CodeQL 检查成功。若任一检查缺少、失败或超时，
+  立即停止，不继续配置分支保护；不得预设或假定任何检查名称。
 
 - [ ] **步骤 3：启用仓库功能和安全分析**
 
-  使用 `gh repo edit` 开启 Public、Issues、Discussions、默认分支 `main`、squash merge 和合并后删除主题分支，并关闭 merge commit 与 rebase merge；同时以 GitHub REST API 的 `security_and_analysis` 字段启用依赖图、Dependabot alerts、Dependabot security updates、Secret Scanning 和 Secret Scanning Push Protection。每个 API 响应只记录状态字段，不记录任何令牌或敏感响应内容。
+  使用 `gh repo edit` 开启 Public、Issues、Discussions、默认分支 `main`、squash merge 和合并后删除主题分支，并关闭 merge commit 与 rebase merge；同时以 GitHub REST API 的 `security_and_analysis` 字段启用依赖图、Dependabot alerts、Dependabot security updates、Secret Scanning 和 Secret Scanning Push Protection。再调用 `PUT /repos/StarlightBrightly/codewiki-showcase/private-vulnerability-reporting` 启用私密漏洞报告，随后调用同一端点 `GET` 并要求返回 `enabled=true`。只有确认该状态后，才将 `https://github.com/StarlightBrightly/codewiki-showcase/security/advisories/new` 作为安全报告的唯一入口。每个 API 响应只记录状态字段，不记录任何令牌或敏感响应内容。
 
 - [ ] **步骤 4：设置 main 分支保护**
 
-  通过 `PUT /repos/StarlightBrightly/codewiki-showcase/branches/main/protection` 设置：
+  在前一步确认推送目标提交的实际检查名称且 CI、CodeQL 均成功后，将读取到的名称原样传给 `PUT /repos/StarlightBrightly/codewiki-showcase/branches/main/protection`；不得在 API 请求中预设 `CI / check` 或 `CodeQL / analyze`。除实际 `contexts` 外设置：
 
   ```text
   required_status_checks.strict = true
-  required_status_checks.contexts = ["CI / check", "CodeQL / analyze"]
+  required_status_checks.contexts = ["<已由 check-runs[].name 读取并确认成功的 CI 名称>", "<已由 check-runs[].name 读取并确认成功的 CodeQL 名称>"]
   required_pull_request_reviews.dismiss_stale_reviews = true
   required_pull_request_reviews.required_approving_review_count = 1
   required_pull_request_reviews.require_code_owner_reviews = false
@@ -399,7 +401,7 @@
 
 - [ ] **步骤 2：回读 GitHub 运行态**
 
-  使用 `gh repo view` 和 `gh api` 读取：`visibility`、`default_branch`、`has_issues`、`has_discussions`、`security_and_analysis`、分支保护 JSON、最新 Actions 运行、Release 元数据和标签提交。分别记录 `CI`、CodeQL 和依赖审查是否成功、跳过或尚未触发。
+  使用 `gh repo view` 和 `gh api` 读取：`visibility`、`default_branch`、`has_issues`、`has_discussions`、`security_and_analysis`、`private-vulnerability-reporting`（要求 `enabled=true`）、分支保护 JSON、最新 Actions 运行、Release 元数据和标签提交。再次从目标提交的 `check-runs[].name` 回读并记录实际 CI、CodeQL 名称及成功状态；若安全报告端点未确认启用，不得把 Security Advisory URL 作为入口。分别记录依赖审查是否成功、跳过或尚未触发。
 
 - [ ] **步骤 3：移除隔离 worktree**
 

@@ -33,5 +33,7 @@ jobs:
         run: pnpm check
       - name: 运行测试
         run: pnpm test
+      - name: 运行公开发布审计回归测试
+        run: node --test scripts/audit-public-release.test.mjs
       - name: 构建项目
         run: pnpm build
