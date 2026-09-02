@@ -42,8 +42,8 @@ type Repository = {
   talkPoint: string;
   url: string;
   urlLabel: string;
-  screenshot: string;
-  screenshotAlt: string;
+  screenshot?: string;
+  screenshotAlt?: string;
   screenshotSource: string;
 };
 
@@ -144,8 +144,6 @@ const repositories: Repository[] = [
       "用一条实际使用路径来看：把具体问题放进仓库上下文，再回看证据与代码。",
     url: "https://grok-wiki.com/",
     urlLabel: "打开官网",
-    screenshot: "/manus-storage/grok-wiki-official-demo_ehbhr5hr.png",
-    screenshotAlt: "Grok-Wiki 官网展示的本地代理桌面工作区，包含项目侧栏与任务面板",
     screenshotSource: "https://grok-wiki.com/#product-overview",
   },
   {
@@ -166,8 +164,6 @@ const repositories: Repository[] = [
       "现场打开 DeepWiki，选一个公开仓库做简短问答，看它如何用文档和源码链接回答具体问题。",
     url: "https://deepwiki.com/",
     urlLabel: "打开 DeepWiki",
-    screenshot: "/manus-storage/deepwiki-official-ui_pa7wq5ja.png",
-    screenshotAlt: "Cognition 官方展示的 DeepWiki 文档页面，包含目录、源码入口和 Ask Devin 提问区域",
     screenshotSource: "https://cognition.com/blog/deepwiki",
   },
 ];
@@ -196,6 +192,7 @@ function ProjectDossier({
 }) {
   const headingId = `dossier-heading-${project.id}`;
   const campLabel = project.camp === "open" ? "开源组" : "闭源组";
+  const hasScreenshot = Boolean(project.screenshot);
 
   return (
     <div
@@ -219,6 +216,12 @@ function ProjectDossier({
               <b>界面预览暂时未能加载</b>
               <small>可点击此处查看官方公开来源。</small>
             </span>
+          ) : !hasScreenshot ? (
+            <span className="dossier-visual-fallback" role="status">
+              <ImageOff size={23} />
+              <b>暂不提供截图</b>
+              <small>打开官方来源</small>
+            </span>
           ) : (
             <img
               src={project.screenshot}
@@ -229,7 +232,7 @@ function ProjectDossier({
             />
           )}
           <span className="dossier-visual-caption">
-            <span>官方公开界面</span>
+            <span>{hasScreenshot ? "官方公开界面" : "仅提供文字来源"}</span>
             <span>
               查看来源 <ExternalLink size={12} />
             </span>
@@ -508,7 +511,22 @@ export default function Home() {
             <div className="mcp-note"><ScanSearch size={18} /><div><span>现场演示</span><p>打开 DeepWiki，选一个公开仓库，提出一个具体问题，看文档、架构说明和源码链接如何支撑回答。</p></div></div>
             <a className="devin-docs-link" href="https://docs.devin.ai/work-with-devin/deepwiki-mcp" target="_blank" rel="noreferrer">查看 DeepWiki MCP 官方说明 <ExternalLink size={15} /></a>
           </div>
-          <figure className="devin-visual"><img src="/manus-storage/deepwiki-official-ui_pa7wq5ja.png" alt="Cognition 官方展示的 DeepWiki VS Code 文档页面" /><figcaption>官方示例：DeepWiki 文档页中同时保留目录、源码入口和 Ask Devin 提问区域。</figcaption></figure>
+          <figure className="devin-visual">
+            <a
+              className="devin-source-card"
+              href="https://cognition.com/blog/deepwiki"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="打开 Cognition 的 DeepWiki 官方来源"
+            >
+              <span className="dossier-visual-fallback" role="status">
+                <ImageOff size={23} />
+                <b>暂不提供截图</b>
+                <small>打开官方来源 · 本仓库不复制闭源宣传截图。</small>
+              </span>
+            </a>
+            <figcaption>Cognition 的 DeepWiki 官方介绍来源。</figcaption>
+          </figure>
         </section>
 
         <section id="verified" className="verified-section section-anchor">

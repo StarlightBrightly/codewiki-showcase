@@ -1,21 +1,19 @@
 # 项目实际界面素材来源
 
-| 项目 | 展示素材 | 来源 | 使用说明 |
+本清单只覆盖当前随项目发布的 7 个素材文件。开源项目素材保留官方公开来源；本项目视觉资产的当前 Git 历史中未发现外部来源记录。
+
+| 类别 | 文件 | 来源 | 使用说明 |
 |---|---|---|---|
-| Grok-Wiki / deepwiki-open | `grok-wiki-interface.png` | https://github.com/AsyncFuncAI/deepwiki-open/tree/main/screenshots ，文件 `Interface.png` | 官方仓库提供的实际 Wiki 生成入口界面。 |
-| OpenWiki | `openwiki-visualizer.gif` | https://github.com/langchain-ai/openwiki/tree/main/static ，文件 `visualizer.gif` | 官方仓库提供的实际 Wiki 可视化界面动图。 |
-| CodeWiki | `codewiki-docs-interface.png` | https://fsoft-ai4code.github.io/CodeWiki/docs/index.html | 从官方公开的 CodeWiki 自生成文档界面截取；截图在页面完整渲染后保存，展示其可浏览的文档页面。 |
+| 开源项目 | `grok-wiki-interface.png` | [DeepWiki-Open 截图目录](https://github.com/AsyncFuncAI/deepwiki-open/tree/main/screenshots)，文件 `Interface.png` | 官方公开仓库提供的实际 Wiki 生成入口界面。 |
+| 开源项目 | `openwiki-visualizer.gif` | [OpenWiki static 目录](https://github.com/langchain-ai/openwiki/tree/main/static)，文件 `visualizer.gif` | 官方公开仓库提供的 Wiki 可视化界面动图。 |
+| 开源项目 | `codewiki-docs-interface.png` | [CodeWiki 官方文档](https://fsoft-ai4code.github.io/CodeWiki/docs/index.html) | 从官方公开的 CodeWiki 自生成文档界面截取，展示可浏览的文档页面。 |
+| 本项目视觉资产 | `codewiki-comparison-atlas.jpg` | 当前 Git 历史审计 | 本项目比较区视觉资产；截至 2026-09-02 未在当前 Git 历史中发现外部来源记录。 |
+| 本项目视觉资产 | `codewiki-hero-graph.jpg` | 当前 Git 历史审计 | 本项目首页视觉资产；截至 2026-09-02 未在当前 Git 历史中发现外部来源记录。 |
+| 本项目视觉资产 | `codewiki-mark.png` | 当前 Git 历史审计 | 本项目标识视觉资产；截至 2026-09-02 未在当前 Git 历史中发现外部来源记录。 |
+| 本项目视觉资产 | `grok-wiki-fieldnotes.jpg` | 当前 Git 历史审计 | 本项目实战焦点视觉资产；截至 2026-09-02 未在当前 Git 历史中发现外部来源记录。 |
 
-这些素材仅用于本次技术分享网站中的项目说明区域，并在界面中附带对应的来源链接。
+## 2026-09-02 素材审计记录
 
-## 发布资源核验
-
-已直接访问发布域名下的 Grok-Wiki 图片路径，资源可正常返回并由部署存储提供。后续修复将聚焦页面内图片容器的预览反馈与备用加载状态。
-
-在已发布页面的项目区复核时，默认展开的 Grok-Wiki 详情卡已正常出现；实际界面图位于详情卡的标题区之后，需要继续核验其容器内的加载反馈。
-
-已在已发布页面中直接滚动至 Grok-Wiki 详情卡，确认其实际界面图已正常显示。资源路径、图片容器与来源链接均可访问。
-
-## Grok-Wiki 官网界面更新
-
-用户指定的 https://grok-wiki.com/ 显示了当前的本地代理桌面工作区。官网的产品演示区包含项目侧栏、Tasks、Wiki、Ask、Docs 与 Terminal 等实际界面。旧图来自 deepwiki-open 的仓库历史截图，已不再用于 Grok-Wiki 项目卡。新的截图将以官网产品演示区为准。
+- 发布范围收敛为上表列出的 7 个文件，并与 `asset-mapping.json` 和页面代码引用逐一核对。
+- 两项未获明确再发布许可的闭源宣传截图不再随项目发布，也不再由页面或素材映射引用。
+- 对无明确再发布许可的闭源宣传截图，页面改为显示来源说明卡片；用户仍可通过官方来源链接访问原始介绍。

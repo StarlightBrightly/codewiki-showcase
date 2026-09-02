@@ -214,7 +214,8 @@
 .mcp-note p { margin: 6px 0 0; color: #475243; font-size: 12px; line-height: 1.7; }
 .devin-docs-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 22px; color: #385316; font-size: 12px; font-weight: 700; }
 .devin-visual { display: flex; min-height: 100%; flex-direction: column; justify-content: center; margin: 0; padding: 60px 6vw 60px 3vw; background: #d8d7cf; }
-.devin-visual img { display: block; width: 100%; border: 1px solid #b6b7ad; box-shadow: 12px 14px 0 #20231e; }
+.devin-source-card { display: block; width: 100%; border: 1px solid #b6b7ad; box-shadow: 12px 14px 0 #20231e; color: inherit; text-decoration: none; }
+.devin-source-card .dossier-visual-fallback { min-height: 300px; }
 .devin-visual figcaption { margin-top: 18px; color: #5c645a; font: 10px/1.65 "IBM Plex Mono", monospace; }
 
 .decision-cards.four-cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
