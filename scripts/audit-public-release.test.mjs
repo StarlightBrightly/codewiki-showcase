@@ -664,4 +664,27 @@ describe("CLI", () => {
       /run: node --test scripts\/audit-public-release\.test\.mjs/
     );
   });
+
+  it("uses package.json as the sole pnpm version source in CI", async () => {
+    const workflow = await readFile(
+      path.join(
+        path.dirname(fileURLToPath(import.meta.url)),
+        "../.github/workflows/ci.yml"
+      ),
+      "utf8"
+    );
+    const packageJson = await readFile(
+      path.join(
+        path.dirname(fileURLToPath(import.meta.url)),
+        "../package.json"
+      ),
+      "utf8"
+    );
+    const pnpmSetupBlock = workflow
+      .split("uses: pnpm/action-setup@v4")[1]
+      .split("\n      - name:")[0];
+
+    assert.doesNotMatch(pnpmSetupBlock, /\n\s+version:/);
+    assert.match(packageJson, /"packageManager":\s*"pnpm@/);
+  });
 });
