@@ -17,7 +17,7 @@ jobs:
       VITE_APP_LOGO: https://codewiki-qn4bmd4p.manus.space/manus-storage/codewiki-mark_myu2b3hi.png
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: 设置 pnpm
         uses: pnpm/action-setup@v4
       - name: 设置 Node.js
