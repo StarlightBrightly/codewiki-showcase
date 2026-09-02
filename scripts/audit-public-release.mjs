@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { access, readdir, readFile } from "node:fs/promises";
+import { lstat, readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -42,8 +42,6 @@ const CURRENT_SCAN_ARGS = [
   "!.superpowers/**",
   "--glob",
   "!.audit-public-release/**",
-  "--glob",
-  "!client/public/manus-storage/**",
   "--glob",
   "!**/*.{png,jpg,jpeg,gif,webp,ico,avif,bmp,tiff,woff,woff2,ttf,otf,pdf,zip,tar,gz,mp4,webm,mp3,wav}",
   "-e",
@@ -259,8 +257,7 @@ async function readJson(filePath) {
 
 async function fileExists(filePath) {
   try {
-    await access(filePath);
-    return true;
+    return (await lstat(filePath)).isFile();
   } catch (error) {
     if (error?.code === "ENOENT") return false;
     throw error;
@@ -432,7 +429,6 @@ export async function runAudit({
 
   return {
     audit: "public-release",
-    rootDir,
     exitCode: findings.length === 0 ? 0 : 1,
     current,
     history,

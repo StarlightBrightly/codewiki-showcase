@@ -32,10 +32,11 @@ afterEach(async () => {
   );
 });
 
-async function createTemporaryTree(files) {
-  const directory = await mkdtemp(
-    path.join(os.tmpdir(), "audit-public-release-")
-  );
+async function createTemporaryTree(
+  files,
+  directoryPrefix = "audit-public-release-"
+) {
+  const directory = await mkdtemp(path.join(os.tmpdir(), directoryPrefix));
   temporaryDirectories.push(directory);
   await Promise.all(
     Object.entries(files).map(async ([name, content]) => {
@@ -47,6 +48,17 @@ async function createTemporaryTree(files) {
   return directory;
 }
 
+function credentialUri(scheme, username = "audit-user") {
+  return [
+    scheme,
+    "://",
+    username,
+    ":",
+    ["synthetic", "password"].join("-"),
+    "@db.example.invalid",
+  ].join("");
+}
+
 async function createGitFixture({
   databaseUris = false,
   licenseSecret,
@@ -55,11 +67,17 @@ async function createGitFixture({
   secret,
   symlinkAsset = false,
   unicodeSensitivePath = false,
+  assetDatabaseUris,
+  directoryPrefix,
 } = {}) {
   const mapping = {
     "registered.png": "/manus-storage/registered.png",
   };
   const notedAssets = ["registered.png"];
+  if (assetDatabaseUris) {
+    mapping["asset-metadata.txt"] = "/manus-storage/asset-metadata.txt";
+    notedAssets.push("asset-metadata.txt");
+  }
   const fixtureFiles = {
     ".gitignore": ".env\n",
     LICENSE: `${licenseSecret ?? "MIT License"}\n`,
@@ -67,6 +85,11 @@ async function createGitFixture({
     "client/src/pages/Home.tsx":
       'export const image = "/manus-storage/registered.png";\n',
     "client/public/manus-storage/registered.png": "fixture\n",
+    ...(assetDatabaseUris
+      ? {
+          "client/public/manus-storage/asset-metadata.txt": `${assetDatabaseUris}\n`,
+        }
+      : {}),
     ...(unmappedAsset
       ? { "client/public/manus-storage/nested/unmapped.txt": "fixture\n" }
       : {}),
@@ -96,7 +119,7 @@ async function createGitFixture({
 
   if (symlinkAsset) fixtureFiles["outside.txt"] = "fixture\n";
 
-  const directory = await createTemporaryTree(fixtureFiles);
+  const directory = await createTemporaryTree(fixtureFiles, directoryPrefix);
 
   if (symlinkAsset) {
     await symlink(
@@ -195,6 +218,21 @@ describe("scanCurrentTree", () => {
     assert.deepEqual(result.matchedPaths, ["config/redis.txt"]);
   });
 
+  it("scans credentialed database URIs in text files under the asset directory", async () => {
+    const directory = await createTemporaryTree({
+      "client/public/manus-storage/metadata.txt": [
+        credentialUri("mysql"),
+        credentialUri("redis", ""),
+      ].join("\n"),
+    });
+
+    const result = await audit.scanCurrentTree({ rootDir: directory });
+
+    assert.deepEqual(result.matchedPaths, [
+      "client/public/manus-storage/metadata.txt",
+    ]);
+  });
+
   it("scans an ignored .env file and recognizes an sk-proj- key without exposing its value", async () => {
     const secret = ["sk", "proj", "abcdefghijklmnopqrstuvwxyz1234567890"].join(
       "-"
@@ -268,6 +306,27 @@ describe("scanCurrentTree", () => {
     assert.deepEqual(result.unmappedAssetFiles, [
       "client/public/manus-storage/nested/unmapped.txt",
     ]);
+  });
+
+  it("rejects an asset mapping target that is a directory", async () => {
+    const directory = await createTemporaryTree({
+      "asset-mapping.json":
+        '{"registered.png":"/manus-storage/registered.png","directory-target":"/manus-storage/directory-target"}\n',
+      "asset_sources.md": "`registered.png`\n`directory-target`\n",
+      "THIRD_PARTY_NOTICES.md":
+        "不受本项目 MIT 许可证覆盖\n`registered.png`\n`directory-target`\n",
+      "client/src/pages/Home.tsx":
+        'export const image = "/manus-storage/registered.png";\n',
+      "client/public/manus-storage/registered.png": "fixture\n",
+      "client/public/manus-storage/directory-target/.keep": "fixture\n",
+    });
+
+    const result = await audit.validateAssetClosure({
+      rootDir: directory,
+      execute: async () => ({ exitCode: 0, stdout: "", stderr: "" }),
+    });
+
+    assert.deepEqual(result.missing, ["/manus-storage/directory-target"]);
   });
 
   it("detects asset symlinks instead of treating them as ordinary files", async () => {
@@ -522,6 +581,36 @@ describe("CLI", () => {
       packageLicense: "other",
       passed: false,
     });
+  });
+
+  it("does not expose an asset-directory credential through runAudit", async () => {
+    const databaseUris = [
+      credentialUri("mysql"),
+      credentialUri("redis", ""),
+    ].join("\n");
+    const directory = await createGitFixture({
+      assetDatabaseUris: databaseUris,
+    });
+
+    const result = await audit.runAudit({ rootDir: directory });
+
+    assert.deepEqual(result.current.matchedPaths, [
+      "client/public/manus-storage/asset-metadata.txt",
+    ]);
+    assert.ok(result.findings.includes("current-secret-match"));
+  });
+
+  it("does not expose the raw synthetic-secret root directory in CLI output", async () => {
+    const rootDirMarker = ["synthetic", "root", "secret"].join("-");
+    const directory = await createGitFixture({
+      directoryPrefix: `audit-public-release-${rootDirMarker}-`,
+    });
+
+    const result = await runCli(directory);
+
+    assert.equal(result.stdout.includes(rootDirMarker), false);
+    assert.equal(result.stderr.includes(rootDirMarker), false);
+    assert.equal("rootDir" in JSON.parse(result.stdout), false);
   });
 
   it("runs the audit regression suite as an independent CI step", async () => {
