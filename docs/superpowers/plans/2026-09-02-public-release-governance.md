@@ -256,13 +256,16 @@
 
 - 验证：`LICENSE`
 - 验证：`package.json`
+- 修改：`package.json`（仅增加 `audit:public-release` 脚本，保留 `license: "MIT"`）
+- 创建：`scripts/audit-public-release.mjs`
+- 创建：`scripts/audit-public-release.test.mjs`
 - 验证：当前 Git 工作树和所有可达提交
 - 验证：`client/public/manus-storage`、`asset-mapping.json`、`asset_sources.md`、`THIRD_PARTY_NOTICES.md`
 
 **接口：**
 
 - 消费：任务 1–3 的文件和执行审计时由 `git rev-list --all` 得到的全部可达提交。
-- 产出：可附在 Release/PR 中的审计结果；没有真实凭据、敏感路径、未登记素材引用和许可证字段漂移。
+- 产出：可重复运行的 `pnpm audit:public-release` 和可附在 Release/PR 中的审计结果；没有真实凭据、敏感路径、未登记素材引用和许可证字段漂移。
 
 - [ ] **步骤 1：核验许可证元数据**
 
@@ -276,11 +279,11 @@
 
 - [ ] **步骤 2：扫描当前文件中的高置信度凭据**
 
-  使用不打印匹配内容的文件名扫描，覆盖 AWS access key、GitHub token、OpenAI-style key、Slack token、npm token、Google API key、私钥块和带凭据的 URL；排除 `node_modules`、`dist`、`.git` 和二进制素材。命令退出码和命中文件数均记录，命中时不把秘密复制到报告。
+  先写 `scripts/audit-public-release.test.mjs` 的失败测试，使用临时目录中的被 `.gitignore` 忽略的 `.env` 和 `sk-proj-` 形式样例验证扫描结果只返回路径、不返回内容；再实现 `scripts/audit-public-release.mjs`。脚本使用 `rg --no-ignore --hidden`，覆盖 AWS access key、GitHub token、OpenAI-style key（包括 `sk-proj-`）、Slack token、npm token、Google API key、私钥块和带凭据的 URL；排除 `node_modules`、`dist`、`.git`、审计工作目录和二进制素材。脚本必须把 `rg` 的 0（命中）、1（无命中）和 2（执行错误）区分处理，错误不得转化为通过。
 
 - [ ] **步骤 3：扫描全部可达 Git 历史**
 
-  对 `git rev-list --all` 的每个提交执行同样的高置信度扫描，并扫描历史树中的 `.env`、私钥、凭据、密码和 token 文件名；报告只保留提交哈希和路径。发现真实凭据时停止公开、轮换凭据并另行处理历史清理，不使用 `git reset --hard`。
+  脚本对 `git rev-list --all` 的每个提交执行同样的高置信度扫描，并扫描历史树中的 `.env`、私钥、凭据、密码和 token 文件名；输出完整 refs、提交数量、逐提交匹配计数和退出码，但只保留提交哈希和路径。发现真实凭据时停止公开、轮换凭据并另行处理历史清理，不使用 `git reset --hard`。
 
 - [ ] **步骤 4：校验素材闭包**
 
@@ -289,12 +292,13 @@
 - [ ] **步骤 5：确认审计门禁**
 
   ```bash
+  pnpm audit:public-release
   git status --short --branch --untracked-files=all
   git log --all --oneline --decorate -10
   git diff --stat main...HEAD
   ```
 
-  前四步无阻断发现时，以终端结果作为发布门禁，不创建没有文件变化的空提交；若审计发现需要修正文件，只提交修正本身，不把秘密或完整扫描输出写入提交。
+  `pnpm audit:public-release`、格式检查和前四步无阻断发现时，以终端结果作为发布门禁，不创建没有文件变化的空提交；若审计发现需要修正文件，只提交修正本身，不把秘密或完整扫描输出写入提交。
 
 ### Task 5：合并治理改动并执行 GitHub 外部设置
 
@@ -408,5 +412,6 @@
 - README、贡献指南、行为准则、安全政策、Issue/PR 模板和第三方声明全部存在且为简体中文。
 - `pnpm check`、`VITE_APP_LOGO=... pnpm test`、`pnpm build` 和格式检查通过；既有网络测试的外部资源结果单独标注。
 - 当前文件和所有可达历史高置信度敏感扫描无真实凭据命中。
+- `pnpm audit:public-release` 通过，且报告记录执行时的 refs、提交覆盖数、退出码和命中计数，不输出秘密内容。
 - 远程仓库为 Public，Issues/Discussions 已启用，默认分支为 `main`，`main` 保护规则和安全扫描状态已回读。
 - `v1.0.0` Release 存在并指向最终治理提交；本地和远程 Git 状态均可复核。
