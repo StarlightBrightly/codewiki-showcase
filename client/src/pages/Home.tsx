@@ -2,22 +2,19 @@
  * Style context — 维护者的工作台：瑞士编辑设计 + 研究笔记。
  * 墨黑索引轨道、雾白纸张、Signal Lime 只用于“已验证”和关键结论；叙事优先于装饰。
  */
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowDownRight,
   ArrowUpRight,
   BookOpenText,
   Braces,
   Check,
-  ChevronDown,
   CircleDot,
-  Clock3,
   Copy,
   ExternalLink,
   FileText,
   GitBranch,
   ImageOff,
-  Layers3,
   Menu,
   Network,
   ScanSearch,
@@ -76,7 +73,7 @@ const repositories: Repository[] = [
     statusTone: "research",
     tagline: "以公开实现探索交互式 Code Wiki 的生成与导览",
     description:
-      "该公开仓库展示了从代码结构分析到 Wiki、图示和 Code Map 的交互式流程。本页将它放在开源组，作为可阅读、可验证的实现路径。",
+      "该公开仓库展示了从代码结构分析到 Wiki、图示和 Code Map 的交互式流程，适合对照源码和界面讨论生成与导览。",
     method: "仓库解析 → 文档 / 图示 → 可导航的代码导览",
     output: "交互式 Wiki、说明图与代码结构索引",
     bestFor: "希望查看实现思路，或在自己的环境中进一步验证交互体验",
@@ -93,7 +90,7 @@ const repositories: Repository[] = [
     name: "OpenWiki",
     label: "langchain-ai/openwiki",
     camp: "open",
-    status: "文档调研",
+    status: "公开仓库",
     statusTone: "research",
     tagline: "将 Wiki 保存在代码库中，并随变更更新",
     description:
@@ -114,7 +111,7 @@ const repositories: Repository[] = [
     name: "CodeWiki",
     label: "FSoft-AI4Code/CodeWiki",
     camp: "open",
-    status: "文档调研",
+    status: "公开仓库",
     statusTone: "research",
     tagline: "用层级分解与多代理处理复杂仓库",
     description:
@@ -135,15 +132,16 @@ const repositories: Repository[] = [
     name: "Grok-Wiki",
     label: "grok-wiki.com · 闭源产品",
     camp: "closed",
-    status: "我实际使用过",
+    status: "实际使用",
     statusTone: "verified",
     tagline: "让本地代理围绕仓库上下文生成、提问与执行任务",
     description:
       "当前官网将 Grok-Wiki 定位为本地代理桌面工作区，包含 Projects、Wiki、Ask、Docs、Tasks 与 Terminal 等界面。它通过本地 CLI 代理处理模型访问与仓库工作流。",
     method: "选择仓库 → 本地代理建立上下文 → Wiki / Ask / Docs / Tasks",
     output: "桌面工作区、可追问的仓库上下文与任务流",
-    bestFor: "希望在本地代理工作流中快速建立仓库理解，并已具备实际使用经验的场景",
-    talkPoint: "本次分享会用实际使用路径展示：把一个具体问题放进仓库上下文，再回看证据与代码。",
+    bestFor: "希望在本地桌面工作区中围绕仓库提问、查阅文档并执行任务",
+    talkPoint:
+      "用一条实际使用路径来看：把具体问题放进仓库上下文，再回看证据与代码。",
     url: "https://grok-wiki.com/",
     urlLabel: "打开官网",
     screenshot: "/manus-storage/grok-wiki-official-demo_ehbhr5hr.png",
@@ -156,15 +154,16 @@ const repositories: Repository[] = [
     name: "Devin / DeepWiki",
     label: "Cognition · 闭源服务体系",
     camp: "closed",
-    status: "MCP 客户端已安装",
+    status: "可在线问答",
     statusTone: "connected",
     tagline: "让代码库文档、问答和工程执行处在同一产品体系",
     description:
       "DeepWiki 是 Cognition 推出的 Devin Wiki 与 Devin Search 的免费公开版本。它负责公开仓库的文档、源码链接和问答；Devin 提供更完整的代码搜索、规划与工程执行能力。",
     method: "DeepWiki 索引与问答 → MCP 接入 → Devin 工程执行",
-    output: "公开仓库 Wiki、代码库问答与 MCP 工具调用",
-    bestFor: "希望将公开仓库的结构、内容和问答能力接入本地 AI 客户端的场景",
-    talkPoint: "今天已安装 DeepWiki MCP 客户端；现场可先展示结构读取、内容读取和基于仓库的问答三类能力。",
+    output: "公开仓库 Wiki、架构图、源码链接与问答",
+    bestFor: "希望先用公开仓库验证文档、架构图和问答能力的场景",
+    talkPoint:
+      "现场打开 DeepWiki，选一个公开仓库做简短问答，看它如何用文档和源码链接回答具体问题。",
     url: "https://deepwiki.com/",
     urlLabel: "打开 DeepWiki",
     screenshot: "/manus-storage/deepwiki-official-ui_pa7wq5ja.png",
@@ -186,6 +185,97 @@ function scrollToId(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+function ProjectDossier({
+  project,
+  imageLoadError,
+  onImageError,
+}: {
+  project: Repository;
+  imageLoadError: boolean;
+  onImageError: () => void;
+}) {
+  const headingId = `dossier-heading-${project.id}`;
+  const campLabel = project.camp === "open" ? "开源组" : "闭源组";
+
+  return (
+    <div
+      className="project-dossier"
+      id="project-dossier"
+      role="region"
+      aria-labelledby={headingId}
+      aria-live="polite"
+    >
+      <figure className="dossier-visual">
+        <a
+          className="dossier-visual-link"
+          href={project.screenshotSource}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={`打开 ${project.name} 的界面来源`}
+        >
+          {imageLoadError ? (
+            <span className="dossier-visual-fallback" role="status">
+              <ImageOff size={23} />
+              <b>界面预览暂时未能加载</b>
+              <small>可点击此处查看官方公开来源。</small>
+            </span>
+          ) : (
+            <img
+              src={project.screenshot}
+              alt={project.screenshotAlt}
+              loading="eager"
+              decoding="async"
+              onError={onImageError}
+            />
+          )}
+          <span className="dossier-visual-caption">
+            <span>官方公开界面</span>
+            <span>
+              查看来源 <ExternalLink size={12} />
+            </span>
+          </span>
+        </a>
+      </figure>
+      <div className="dossier-main">
+        <header className="dossier-heading">
+          <p className="eyebrow">
+            <span>{project.index}</span> {campLabel}
+          </p>
+          <h3 id={headingId}>{project.name}</h3>
+          <p className="dossier-label">{project.label}</p>
+          <a
+            className="source-link"
+            href={project.url}
+            target="_blank"
+            rel="noreferrer"
+          >
+            {project.urlLabel} <ExternalLink size={14} />
+          </a>
+        </header>
+        <p className="dossier-summary">{project.description}</p>
+        <dl className="dossier-facts">
+          <div>
+            <dt>工作流</dt>
+            <dd>{project.method}</dd>
+          </div>
+          <div>
+            <dt>主要产物</dt>
+            <dd>{project.output}</dd>
+          </div>
+          <div>
+            <dt>适用场景</dt>
+            <dd>{project.bestFor}</dd>
+          </div>
+        </dl>
+        <div className="talk-note">
+          <span>讲解要点</span>
+          <p>{project.talkPoint}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const { user, isAuthenticated, logout } = useAuth();
 
@@ -196,6 +286,7 @@ export default function Home() {
   const [presentationMode, setPresentationMode] = useState(false);
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
   const [imageLoadError, setImageLoadError] = useState(false);
+  const hasUserPickedProject = useRef(false);
 
   const selectedProject = useMemo(
     () => repositories.find((project) => project.id === activeProject) ?? repositories[0],
@@ -221,6 +312,19 @@ export default function Home() {
   }, []);
 
   useEffect(() => setImageLoadError(false), [activeProject]);
+
+  useEffect(() => {
+    if (!hasUserPickedProject.current) return;
+    document
+      .querySelector(".project-card.is-selected")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [activeProject]);
+
+  const selectProject = (projectId: string) => {
+    hasUserPickedProject.current = true;
+    setActiveProject(projectId);
+    setImageLoadError(false);
+  };
 
   const navigate = (id: string) => {
     setRailOpen(false);
@@ -250,7 +354,7 @@ export default function Home() {
         <div className="rail-header">
           <a className="rail-brand" href="#opening" onClick={(event) => { event.preventDefault(); navigate("opening"); }}>
             <img src="/manus-storage/codewiki-mark_myu2b3hi.png" alt="Code Wiki 分享标志" />
-            <span><strong>CODE / WIKI</strong><small>field notes · 10 min</small></span>
+            <span><strong>CODE / WIKI</strong><small>tech share · 10 min</small></span>
           </a>
           <button className="rail-close" type="button" aria-label="关闭章节导航" onClick={() => setRailOpen(false)}><X size={18} /></button>
         </div>
@@ -266,8 +370,8 @@ export default function Home() {
         </nav>
 
         <div className="rail-bottom">
-          <div className="current-cue"><span>NOW SPEAKING</span><b>{currentChapter.label}</b><p>{currentChapter.time} / 10:00 · 以产品边界和实际接入状态组织讲解。</p></div>
-          <div className="progress-wrap" aria-label={`阅读进度 ${progress}%`}><div className="progress-track"><span style={{ height: `${progress}%` }} /></div><span>{String(progress).padStart(2, "0")}%</span></div>
+          <div className="current-cue"><span>当前章节</span><b>{currentChapter.label}</b><p>{currentChapter.time} / 10:00 · 按开源、闭源和工作流比较这些工具。</p></div>
+          <div className="progress-wrap" aria-label={`讲解进度 ${progress}%`}><div className="progress-track"><span style={{ height: `${progress}%` }} /></div><span>{String(progress).padStart(2, "0")}%</span></div>
           <button className={`presentation-toggle ${presentationMode ? "is-active" : ""}`} type="button" aria-pressed={presentationMode} onClick={() => setPresentationMode((value) => !value)}>
             <Sparkles size={14} />{presentationMode ? "退出演讲模式" : "演讲模式"}
           </button>
@@ -289,14 +393,21 @@ export default function Home() {
         <section id="opening" className="hero section-anchor">
           <div className="hero-art" style={{ backgroundImage: "url('/manus-storage/codewiki-hero-graph_skxp5ef9.jpg')" }} />
           <div className="hero-overlay" />
-          <div className="hero-brand-mark" aria-label="Code Wiki 研究工作台标志"><img src="/manus-storage/codewiki-mark_myu2b3hi.png" alt="" /><span>FIELD<br />INDEX</span></div>
+          <div className="hero-brand-mark" aria-label="Code Wiki 分享标志"><img src="/manus-storage/codewiki-mark_myu2b3hi.png" alt="" /><span>FIELD<br />INDEX</span></div>
           <div className="hero-content">
             <div className="eyebrow light"><span className="eyebrow-dot" /> 10 MIN TECH SHARE · 2026.09</div>
             <h1>理解代码库，<br /><em>先分清工具的边界。</em></h1>
             <p className="hero-lede">这次分享将 Code Wiki 工具分为两组：可阅读和改造的开源项目，以及通过产品、桌面端与 MCP 接入的闭源服务。</p>
-            <div className="hero-actions"><button className="signal-button" type="button" onClick={() => navigate("landscape")}>开始讲解 <ArrowDownRight size={17} /></button><a className="quiet-link light-link" href="https://grok-wiki.com/" target="_blank" rel="noreferrer">实际使用：Grok-Wiki <ExternalLink size={14} /></a></div>
+            <div className="hero-actions">
+              <button
+                className="signal-button"
+                type="button"
+                onClick={() => navigate("landscape")}
+              >
+                开始讲解 <ArrowDownRight size={17} />
+              </button>
+            </div>
           </div>
-          <div className="hero-margin-note"><span>本次新增</span><p>Devin 与 DeepWiki 作为同一产品体系介绍。<b>今天已安装 DeepWiki MCP 客户端。</b></p></div>
         </section>
 
         <section id="landscape" className="project-index section-anchor">
@@ -306,39 +417,81 @@ export default function Home() {
           </div>
 
           <div className="camp-sections">
-            {camps.map((camp) => (
-              <section className={`camp-section camp-${camp.id}`} key={camp.id} aria-labelledby={`camp-${camp.id}`}>
-                <div className="camp-heading"><div><div className="eyebrow"><span>{camp.id === "open" ? "A" : "B"}</span> {camp.eyebrow}</div><h3 id={`camp-${camp.id}`}>{camp.title}</h3></div><p>{camp.summary}</p></div>
-                <div className={`project-grid camp-grid ${camp.id === "closed" ? "camp-grid-closed" : ""}`}>
-                  {repositories.filter((project) => project.camp === camp.id).map((project) => (
-                    <article className={`project-card ${project.id === activeProject ? "is-selected" : ""} ${project.statusTone === "verified" ? "is-verified" : ""}`} key={project.id}>
-                      <button className="project-card-button" type="button" onClick={() => { setActiveProject(project.id); setImageLoadError(false); }} aria-pressed={project.id === activeProject}>
-                        <div className="card-topline"><span className="project-number">{project.index}</span><span className={`status-chip ${project.statusTone}`}>{project.statusTone === "verified" ? <Check size={12} /> : <CircleDot size={11} />}{project.status}</span></div>
-                        <h3>{project.name}</h3><p className="repo-label">{project.label}</p><p className="project-tagline">{project.tagline}</p>
-                        <span className="inspect-label">{project.id === activeProject ? "已展开项目界面与要点" : "查看项目界面与要点"} <ChevronDown size={15} /></span>
-                      </button>
-                    </article>
-                  ))}
-                </div>
-              </section>
-            ))}
-          </div>
+            {camps.map((camp) => {
+              const campProjects = repositories.filter(
+                (project) => project.camp === camp.id,
+              );
+              const selectedInCamp = selectedProject.camp === camp.id;
 
-          <div className="project-dossier" key={selectedProject.id} aria-live="polite">
-            <div className="dossier-index"><span>{selectedProject.index}</span><div className="dossier-spine" /></div>
-            <div className="dossier-main">
-              <div className="dossier-heading"><div><div className="eyebrow"><span>{selectedProject.camp === "open" ? "开源组" : "闭源组"}</span> 项目笔记</div><h3>{selectedProject.name}</h3></div><a className="source-link" href={selectedProject.url} target="_blank" rel="noreferrer">{selectedProject.urlLabel} <ExternalLink size={15} /></a></div>
-              <figure className="dossier-visual">
-                <div className="dossier-visual-head"><span>官方公开界面</span><a href={selectedProject.screenshotSource} target="_blank" rel="noreferrer">查看来源 <ExternalLink size={13} /></a></div>
-                <a className="dossier-visual-link" href={selectedProject.screenshotSource} target="_blank" rel="noreferrer" aria-label={`打开 ${selectedProject.name} 的界面来源`}>
-                  {imageLoadError ? <span className="dossier-visual-fallback" role="status"><ImageOff size={23} /><b>界面预览暂时未能加载</b><small>可点击此处查看官方公开来源。</small></span> : <img src={selectedProject.screenshot} alt={selectedProject.screenshotAlt} loading="eager" decoding="async" onError={() => setImageLoadError(true)} />}
-                </a>
-                <figcaption>{imageLoadError ? "已提供官方来源作为备用入口。" : "点击界面图可打开官方来源。"}</figcaption>
-              </figure>
-              <p className="dossier-summary">{selectedProject.description}</p>
-              <div className="dossier-columns"><div><span>工作流</span><p>{selectedProject.method}</p></div><div><span>主要产物</span><p>{selectedProject.output}</p></div><div><span>适用场景</span><p>{selectedProject.bestFor}</p></div></div>
-              <div className="talk-note"><span>项目要点</span><p>{selectedProject.talkPoint}</p></div>
-            </div>
+              return (
+                <section
+                  className={`camp-section camp-${camp.id} ${selectedInCamp ? "has-dossier" : ""}`}
+                  key={camp.id}
+                  aria-labelledby={`camp-${camp.id}`}
+                >
+                  <div className="camp-heading">
+                    <div>
+                      <div className="eyebrow">
+                        <span>{camp.id === "open" ? "A" : "B"}</span>{" "}
+                        {camp.eyebrow}
+                      </div>
+                      <h3 id={`camp-${camp.id}`}>{camp.title}</h3>
+                    </div>
+                    <p>{camp.summary}</p>
+                  </div>
+                  <div
+                    className={`project-grid camp-grid ${camp.id === "closed" ? "camp-grid-closed" : ""}`}
+                  >
+                    {campProjects.map((project) => {
+                      const selected = project.id === activeProject;
+                      return (
+                        <Fragment key={project.id}>
+                          <article
+                            className={`project-card ${selected ? "is-selected" : ""} ${project.statusTone === "verified" ? "is-verified" : ""}`}
+                          >
+                            <button
+                              className="project-card-button"
+                              type="button"
+                              onClick={() => selectProject(project.id)}
+                              aria-pressed={selected}
+                              aria-controls="project-dossier"
+                            >
+                              <div className="card-topline">
+                                <span className="project-number">
+                                  {project.index}
+                                </span>
+                                <span className={`status-chip ${project.statusTone}`}>
+                                  {project.statusTone === "verified" ? (
+                                    <Check size={12} />
+                                  ) : (
+                                    <CircleDot size={11} />
+                                  )}
+                                  {project.status}
+                                </span>
+                              </div>
+                              <h3>{project.name}</h3>
+                              <p className="repo-label">{project.label}</p>
+                              <p className="project-tagline">{project.tagline}</p>
+                              <span className="inspect-label">
+                                {selected ? "当前介绍" : "查看介绍"}
+                                <ArrowDownRight size={15} />
+                              </span>
+                            </button>
+                          </article>
+                          {selected ? (
+                            <ProjectDossier
+                              project={selectedProject}
+                              imageLoadError={imageLoadError}
+                              onImageError={() => setImageLoadError(true)}
+                            />
+                          ) : null}
+                        </Fragment>
+                      );
+                    })}
+                  </div>
+                </section>
+              );
+            })}
           </div>
         </section>
 
@@ -352,7 +505,7 @@ export default function Home() {
               <div><span>02 / CONNECT</span><strong>DeepWiki MCP</strong><p>将结构、内容和问答能力接入兼容 MCP 的本地客户端。</p></div>
               <div><span>03 / ACT</span><strong>Devin</strong><p>在更完整的应用中处理代码搜索、规划与工程执行。</p></div>
             </div>
-            <div className="mcp-note"><Network size={18} /><div><span>你的接入状态</span><p><b>今天已安装 DeepWiki MCP 客户端。</b> 分享现场可先展示 `read_wiki_structure`、`read_wiki_contents` 与 `ask_question` 三类能力；页面不把“已安装”写成“已完成效果验证”。</p></div></div>
+            <div className="mcp-note"><ScanSearch size={18} /><div><span>现场演示</span><p>打开 DeepWiki，选一个公开仓库，提出一个具体问题，看文档、架构说明和源码链接如何支撑回答。</p></div></div>
             <a className="devin-docs-link" href="https://docs.devin.ai/work-with-devin/deepwiki-mcp" target="_blank" rel="noreferrer">查看 DeepWiki MCP 官方说明 <ExternalLink size={15} /></a>
           </div>
           <figure className="devin-visual"><img src="/manus-storage/deepwiki-official-ui_pa7wq5ja.png" alt="Cognition 官方展示的 DeepWiki VS Code 文档页面" /><figcaption>官方示例：DeepWiki 文档页中同时保留目录、源码入口和 Ask Devin 提问区域。</figcaption></figure>
@@ -363,17 +516,16 @@ export default function Home() {
           <div className="verified-copy">
             <div className="eyebrow"><span className="lime-marker">03</span> 实战焦点</div>
             <div className="verified-title-row"><h2>Grok-Wiki：<br /><em>从真实使用讲起。</em></h2><span className="verified-stamp"><Check size={14} /> 实际使用</span></div>
-            <p className="verified-intro">本次分享会把 Grok-Wiki 放在闭源产品组中讨论，并以实际使用经验作为现场演示的主线。开源组的 DeepWiki-Open、OpenWiki 与 CodeWiki 用于补充不同的实现与维护路径。</p>
-            <div className="demo-flow" aria-label="Grok-Wiki 现场演示路径"><div><span>01</span><strong>打开本地工作区</strong><p>从一个真实仓库进入，而非抽象罗列功能。</p></div><div><span>02</span><strong>提出具体问题</strong><p>围绕调用链、模块职责或入口文件提问。</p></div><div><span>03</span><strong>回到证据</strong><p>在 Wiki、源码引用和代码结构之间完成核对。</p></div></div>
-            <div className="speaker-cue"><Clock3 size={17} /><p><b>建议占用 2 分 30 秒。</b> 以“问题 → 回答 → 回看代码”的顺序，呈现工具如何服务于理解。</p></div>
+            <p className="verified-intro">接下来用 Grok-Wiki 走一条真实使用路径：打开本地工作区，提出具体问题，再回到代码核对。开源的 DeepWiki-Open、OpenWiki 与 CodeWiki 用来对照不同的实现和维护方式。</p>
+            <div className="demo-flow" aria-label="Grok-Wiki 现场演示路径"><div><span>01</span><strong>打开本地工作区</strong><p>从一个正在用的仓库进入工作区。</p></div><div><span>02</span><strong>提出具体问题</strong><p>围绕调用链、模块职责或入口文件提问。</p></div><div><span>03</span><strong>回到证据</strong><p>在 Wiki、源码引用和代码结构之间完成核对。</p></div></div>
           </div>
         </section>
 
         <section id="comparison" className="comparison-section section-anchor">
           <div className="atlas-art" style={{ backgroundImage: "url('/manus-storage/codewiki-comparison-atlas_3c0n7t9g.jpg')" }} />
           <div className="comparison-content">
-            <div className="section-heading compact-heading"><div className="eyebrow"><span>04</span> 如何选择</div><h2>用<strong>接入方式</strong>，<br />缩小选择范围。</h2><p>表格用于解释开放方式与工作流的差异。开源项目内容来自公开 README；闭源产品内容来自官网与官方文档。</p></div>
-            <div className="comparison-table-wrap"><table><thead><tr><th>观察维度</th><th>开源项目</th><th>闭源产品 / 服务</th></tr></thead><tbody><tr><th>代表项目</th><td>DeepWiki-Open、OpenWiki、CodeWiki</td><td>Grok-Wiki、Devin / DeepWiki</td></tr><tr><th>获得能力的方式</th><td>阅读仓库、运行工具、修改实现或将产物纳入 Git。</td><td>通过官网、桌面工作区、应用接口或 MCP 连接使用。</td></tr><tr><th>知识沉淀</th><td>更容易将文档和配置当作可维护的代码资产。</td><td>更容易把已整理的上下文接入现成的提问与开发工作流。</td></tr><tr><th>当前分享中的位置</th><td>用于观察实现、文档产物和复杂架构处理策略。</td><td>Grok-Wiki 作为实际使用案例；DeepWiki MCP 作为当天已完成的客户端接入。</td></tr></tbody></table></div>
+            <div className="section-heading compact-heading"><div className="eyebrow"><span>04</span> 如何选择</div><h2>用<strong>接入方式</strong>，<br />缩小选择范围。</h2><p>对照开放方式和工作流。开源一侧依据公开仓库，闭源一侧依据官网和官方文档。</p></div>
+            <div className="comparison-table-wrap"><table><thead><tr><th>观察维度</th><th>开源项目</th><th>闭源产品 / 服务</th></tr></thead><tbody><tr><th>代表项目</th><td>DeepWiki-Open、OpenWiki、CodeWiki</td><td>Grok-Wiki、Devin / DeepWiki</td></tr><tr><th>获得能力的方式</th><td>阅读仓库、运行工具、修改实现或将产物纳入 Git。</td><td>通过官网、桌面工作区、应用接口或 MCP 连接使用。</td></tr><tr><th>知识沉淀</th><td>更容易将文档和配置当作可维护的代码资产。</td><td>更容易把已整理的上下文接入现成的提问与开发工作流。</td></tr><tr><th>现场能看到什么</th><td>实现路径、文档产物，以及复杂架构怎么被整理出来。</td><td>Grok-Wiki 的实际使用过程；DeepWiki 对公开仓库的简短问答。</td></tr></tbody></table></div>
           </div>
         </section>
 
@@ -382,8 +534,8 @@ export default function Home() {
           <div className="decision-cards four-cards">
             <article><div className="decision-topline"><span className="decision-number">01</span><span className="decision-context">READ / MODIFY</span><span className="decision-icon"><Braces size={19} /></span></div><h3>希望查看或改造实现？</h3><p>从 DeepWiki-Open、OpenWiki 与 CodeWiki 开始，先用公开代码验证工具的边界。</p><a href="https://github.com/AsyncFuncAI/deepwiki-open" target="_blank" rel="noreferrer">查看开源组 <ArrowUpRight size={14} /></a></article>
             <article><div className="decision-topline"><span className="decision-number">02</span><span className="decision-context">COMMIT / MAINTAIN</span><span className="decision-icon blue"><GitBranch size={19} /></span></div><h3>希望文档留在 Git 中？</h3><p>OpenWiki 的 CLI、链接 Markdown 和持续更新机制，值得在同一仓库中验证。</p><a href="https://github.com/langchain-ai/openwiki" target="_blank" rel="noreferrer">查看 OpenWiki <ArrowUpRight size={14} /></a></article>
-            <article><div className="decision-topline"><span className="decision-number">03</span><span className="decision-context">MCP / CONNECT</span><span className="decision-icon charcoal"><Network size={19} /></span></div><h3>想从本地客户端提问？</h3><p>DeepWiki MCP 已完成安装，可用公开仓库验证结构、内容 and 问答工具。</p><a href="https://docs.devin.ai/work-with-devin/deepwiki-mcp" target="_blank" rel="noreferrer">查看 MCP 文档 <ArrowUpRight size={14} /></a></article>
-            <article><div className="decision-topline"><span className="decision-number">04</span><span className="decision-context">PRESENT / NOW</span><span className="decision-icon"><ScanSearch size={19} /></span></div><h3>准备现场演示？</h3><p>从实际使用过的 Grok-Wiki 展开，直观呈现提问、上下文与代码核对的过程。</p><a href="https://grok-wiki.com/" target="_blank" rel="noreferrer">打开 Grok-Wiki <ArrowUpRight size={14} /></a></article>
+            <article><div className="decision-topline"><span className="decision-number">03</span><span className="decision-context">WEB / ASK</span><span className="decision-icon charcoal"><Network size={19} /></span></div><h3>想先在网页里提问？</h3><p>打开 DeepWiki，选一个公开仓库，直接看文档、架构图和问答结果。</p><a href="https://deepwiki.com/" target="_blank" rel="noreferrer">打开 DeepWiki <ArrowUpRight size={14} /></a></article>
+            <article><div className="decision-topline"><span className="decision-number">04</span><span className="decision-context">DESKTOP / USE</span><span className="decision-icon"><ScanSearch size={19} /></span></div><h3>想看本地工作区怎么用？</h3><p>从 Grok-Wiki 的实际使用展开，看提问、上下文和代码核对如何串起来。</p><a href="https://grok-wiki.com/" target="_blank" rel="noreferrer">打开 Grok-Wiki <ArrowUpRight size={14} /></a></article>
           </div>
         </section>
 
@@ -391,7 +543,7 @@ export default function Home() {
           <div className="closing-rule"><span>05</span><div /></div>
           <div className="closing-content">
             <p className="closing-kicker">Takeaway / 10:00</p><h2>Code Wiki 的价值，<br />在于让<strong>代码上下文</strong>进入工作流。</h2>
-            <div className="closing-grid"><p>开源项目帮助团队掌握实现、产物与维护链路。闭源产品把文档、问答和工程任务放进可直接接入的服务中。这次分享以 Grok-Wiki 的实际使用为主线，并补充了今天完成安装的 DeepWiki MCP 客户端。</p><div className="source-notes"><div><FileText size={16} /><span>资料范围</span><b>三个公开仓库与闭源产品官方资料</b></div><div><Braces size={16} /><span>分享立场</span><b>实际经验、接入状态与克制对比</b></div><div><BookOpenText size={16} /><span>下一步</span><b>用同一仓库验证各类工作流</b></div></div></div>
+            <div className="closing-grid"><p>开源项目帮助团队掌握实现、产物与维护链路。闭源产品把文档、问答和工程任务放进可直接接入的服务中。选择时可以先问：需要看实现、把文档留在 Git，还是把问答接到现成工作流里。</p><div className="source-notes"><div><FileText size={16} /><span>资料范围</span><b>三个公开仓库与闭源产品官方资料</b></div><div><Braces size={16} /><span>分享立场</span><b>以实际使用为主，其余依据公开资料比较</b></div><div><BookOpenText size={16} /><span>下一步</span><b>会后用同一仓库把这些工作流都试一遍</b></div></div></div>
             <div className="aftertalk-kit" aria-label="会后项目与官方链接清单"><div className="aftertalk-heading"><div><span className="closing-kicker">After the talk</span><h3>会后项目与官方链接</h3></div><p>开源仓库、产品官网与 MCP 文档都可一键复制，便于会后继续阅读和验证。</p></div><div className="repo-copy-list">{repositories.map((project) => (<div className="repo-copy-item" key={project.id}><span className="repo-copy-index">{project.index}</span><div><a href={project.url} target="_blank" rel="noreferrer">{project.name} <ExternalLink size={13} /></a><code>{project.url}</code></div><button type="button" onClick={() => copyLink(project.id, project.url)} aria-label={`复制 ${project.name} 链接`}>{copiedLink === project.id ? <><Check size={14} /> 已复制</> : <><Copy size={14} /> 复制链接</>}</button></div>))}</div></div>
           </div>
         </section>
