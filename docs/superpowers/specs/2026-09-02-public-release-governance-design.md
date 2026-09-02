@@ -21,13 +21,13 @@
 
 1. `grok-wiki-interface_ub3aoljv.png`：来源为 `AsyncFuncAI/deepwiki-open` 的公开截图目录。
 2. `openwiki-visualizer_80jboqa8.gif`：来源为 `langchain-ai/openwiki` 的公开静态资源目录。
-3. `codewiki-docs-interface_zj7hgx6c.png`：来源为 FSoft-AI4Code CodeWiki 的官方公开文档页面截图。
-4. `grok-wiki-fieldnotes_frimdi9w.jpg`、`codewiki-hero-graph_skxp5ef9.jpg`、`codewiki-comparison-atlas_3c0n7t9g.jpg` 和 `codewiki-mark_myu2b3hi.png`：登记为本项目视觉资产，不宣称属于第三方产品，也不把第三方商标或品牌授权纳入本项目许可证。
+3. `grok-wiki-fieldnotes_frimdi9w.jpg`、`codewiki-hero-graph_skxp5ef9.jpg`、`codewiki-comparison-atlas_3c0n7t9g.jpg` 和 `codewiki-mark_myu2b3hi.png`：登记为本项目视觉资产，不宣称属于第三方产品，也不把第三方商标或品牌授权纳入本项目许可证。
 
 移除以下没有明确再发布许可证据的文件，并同步移除页面引用：
 
 - `client/public/manus-storage/grok-wiki-official-demo_ehbhr5hr.png`：来自 Grok-Wiki 官网产品演示区的截图。
 - `client/public/manus-storage/deepwiki-official-ui_pa7wq5ja.png`：来自 Cognition 官方博客的截图。
+- `client/public/manus-storage/codewiki-docs-interface_zj7hgx6c.png`：来自 CodeWiki 官方文档页面的截图。
 
 项目卡片的截图字段改为可选。没有截图的项目仍显示名称、官方来源链接和文字说明，不显示破损图片。这样可以在不复制闭源产品宣传图的情况下保留研究入口。
 

@@ -122,8 +122,6 @@ const repositories: Repository[] = [
     talkPoint: "当仓库复杂度上升，文档生成过程需要显式保留模块关系和分层上下文。",
     url: "https://github.com/FSoft-AI4Code/CodeWiki",
     urlLabel: "阅读仓库",
-    screenshot: "/manus-storage/codewiki-docs-interface_zj7hgx6c.png",
-    screenshotAlt: "CodeWiki 自动生成的代码库文档浏览界面",
     screenshotSource: "https://fsoft-ai4code.github.io/CodeWiki/docs/index.html",
   },
   {

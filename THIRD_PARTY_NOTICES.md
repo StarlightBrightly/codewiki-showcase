@@ -16,13 +16,6 @@
 - 上游许可证：[MIT License](https://github.com/langchain-ai/openwiki/blob/main/LICENSE)。
 - 本项目仅按当前清单记录该公开仓库素材来源，不扩展上游许可证对本项目其他内容的覆盖范围。
 
-## CodeWiki
-
-- 素材：`codewiki-docs-interface.png`。
-- 官方来源：[CodeWiki 文档](https://fsoft-ai4code.github.io/CodeWiki/docs/index.html)。
-- 上游项目 README：[FSoft-AI4Code/CodeWiki](https://github.com/FSoft-AI4Code/CodeWiki) 声明项目采用 MIT License。
-- 截图本身不由本项目再授权；本项目只记录其官方公开来源和展示范围。
-
 ## 本项目视觉资产
 
 以下 4 个文件属于本项目视觉资产：
@@ -38,8 +31,9 @@
 
 - `grok-wiki-official-demo_ehbhr5hr.png`：原来源为 [Grok-Wiki 官网产品演示区](https://grok-wiki.com/#product-overview)；因未发现明确的再发布许可，已从发布范围移除。
 - `deepwiki-official-ui_pa7wq5ja.png`：原来源为 [Cognition 的 DeepWiki 介绍](https://cognition.com/blog/deepwiki)；因未发现明确的再发布许可，已从发布范围移除。
+- `codewiki-docs-interface_zj7hgx6c.png`：原来源为 [CodeWiki 官方文档](https://fsoft-ai4code.github.io/CodeWiki/docs/index.html)；未发现截图本身的明确再发布许可，已从发布范围移除。
 
-当前版本树已删除上述两项素材，但它们仍存在于本仓库的历史提交对象中。根据本轮“不重写 Git 历史”的约束，本次没有清除历史对象，因此公开仓库后历史版本可能仍可访问这些文件；本声明不授予任何历史截图的再发布权。若要彻底清除历史对象，需要另行确认授权并执行经过评审的历史重写流程。
+当前版本树已删除上述三项素材，但它们仍存在于本仓库的历史提交对象中。根据本轮“不重写 Git 历史”的约束，本次没有清除历史对象，因此公开仓库后历史版本可能仍可访问这些文件；本声明不授予任何历史截图的再发布权。若要彻底清除历史对象，需要另行确认授权并执行经过评审的历史重写流程。
 
 ## 品牌和网页内容边界
 

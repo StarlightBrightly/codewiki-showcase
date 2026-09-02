@@ -14,7 +14,7 @@
 
 - 许可证继续使用仓库现有标准 MIT 文本，`package.json` 继续保持 `"license": "MIT"`，不重复改写已经正确的内容。
 - 所有新增 Markdown、YAML 和模板说明使用简体中文；`LICENSE` 保留标准 MIT 英文法律文本。
-- `grok-wiki-official-demo_ehbhr5hr.png` 和 `deepwiki-official-ui_pa7wq5ja.png` 及其所有代码引用必须从公开发布物中移除。
+- `grok-wiki-official-demo_ehbhr5hr.png`、`deepwiki-official-ui_pa7wq5ja.png` 和 `codewiki-docs-interface_zj7hgx6c.png` 及其所有代码引用必须从公开发布物中移除。
 - MIT 只覆盖本项目代码、明确属于本项目的文档和视觉资产；第三方项目、网页、博客、截图、商标和产品名称单独登记，不宣称已被本项目再许可。
 - 不重写 Git 历史；当前文件和所有可达提交都要扫描高置信度凭据和敏感路径，发现真实凭据时停止公开流程并轮换凭据。
 - CI 使用 Node.js 22、仓库声明的 pnpm 10.4.1 和 `pnpm install --frozen-lockfile`。
@@ -33,6 +33,7 @@
 - 修改：`client/src/pages/home-restructure.css:52-118,216-218`
 - 删除：`client/public/manus-storage/grok-wiki-official-demo_ehbhr5hr.png`
 - 删除：`client/public/manus-storage/deepwiki-official-ui_pa7wq5ja.png`
+- 删除：`client/public/manus-storage/codewiki-docs-interface_zj7hgx6c.png`
 - 验证：`client/src/pages/Home.tsx`、`asset-mapping.json`、`asset_sources.md`
 
 **接口：**
@@ -42,17 +43,17 @@
 
 - [ ] **步骤 1：建立素材引用基线**
 
-  运行以下命令，确认仅两张批准移除的图片被列为待删除，并记录其当前代码引用：
+  运行以下命令，确认三张经审计后批准移除的图片被列为待删除，并记录其当前代码引用：
 
   ```bash
-  rg -n "grok-wiki-official-demo|deepwiki-official-ui" \
+  rg -n "grok-wiki-official-demo|deepwiki-official-ui|codewiki-docs-interface" \
     client asset-mapping.json asset_sources.md README.md
   find client/public/manus-storage -maxdepth 1 -type f -print | sort
   ```
 
 - [ ] **步骤 2：移除无明确再发布许可的二进制素材**
 
-  使用补丁删除两张 PNG；不删除其余 7 个素材，不修改数据库、存储代理或部署配置。
+  使用补丁删除三张没有明确素材级再发布许可的 PNG；不删除其余 6 个素材，不修改数据库、存储代理或部署配置。
 
 - [ ] **步骤 3：让项目卡片支持“仅来源”状态**
 
@@ -68,15 +69,15 @@
 
 - [ ] **步骤 4：补齐来源和第三方声明**
 
-  重写 `asset_sources.md`，只列出当前保留的 7 个文件：3 个开源项目来源素材和 4 个本项目视觉资产；删除过时的“已发布页面核验”叙述，增加 2026-09-02 素材审计记录。
+  重写 `asset_sources.md`，只列出当前保留的 6 个文件：2 个开源项目来源素材和 4 个本项目视觉资产；删除过时的“已发布页面核验”叙述，增加 2026-09-02 素材审计记录。
 
   创建 `THIRD_PARTY_NOTICES.md`，至少包含以下条目：
 
   - DeepWiki-Open 截图、来源目录、上游 MIT 许可证和 `Copyright (c) 2024 Sheing Ng`。
   - OpenWiki 动图、来源目录、上游 MIT 许可证和上游许可证 URL。
-  - CodeWiki 文档截图、官方文档来源、上游项目 README 的 MIT 声明，以及“截图本身不由本项目再授权”的说明。
+  - CodeWiki 文档截图的原来源和移除原因；不把上游项目 README 的 MIT 声明当作截图本身的再发布授权。
   - 4 个本项目视觉资产的文件名和当前 Git 历史未发现外部来源的审计结论。
-  - 两张已移除截图的文件名、原来源和移除原因。
+  - 三张已移除截图的文件名、原来源和移除原因。
   - 第三方品牌、商标、产品名称和网页内容不受本项目 MIT 许可证覆盖的声明。
 
 - [ ] **步骤 5：验证素材闭包和前端回归**
@@ -84,7 +85,7 @@
   运行：
 
   ```bash
-  ! rg -n "grok-wiki-official-demo|deepwiki-official-ui" \
+  ! rg -n "grok-wiki-official-demo|deepwiki-official-ui|codewiki-docs-interface" \
     client asset-mapping.json asset_sources.md README.md
   pnpm check
   pnpm build
@@ -98,7 +99,8 @@
   git add asset_sources.md THIRD_PARTY_NOTICES.md \
     client/src/pages/Home.tsx client/src/pages/home-restructure.css \
     client/public/manus-storage/grok-wiki-official-demo_ehbhr5hr.png \
-    client/public/manus-storage/deepwiki-official-ui_pa7wq5ja.png
+    client/public/manus-storage/deepwiki-official-ui_pa7wq5ja.png \
+    client/public/manus-storage/codewiki-docs-interface_zj7hgx6c.png
   git commit -m "Checkpoint: 收敛公开素材与版权边界"
   ```
 
@@ -259,7 +261,7 @@
 
 **接口：**
 
-- 消费：任务 1–3 的文件和现有 22 个可达提交。
+- 消费：任务 1–3 的文件和执行审计时由 `git rev-list --all` 得到的全部可达提交。
 - 产出：可附在 Release/PR 中的审计结果；没有真实凭据、敏感路径、未登记素材引用和许可证字段漂移。
 
 - [ ] **步骤 1：核验许可证元数据**
@@ -282,7 +284,7 @@
 
 - [ ] **步骤 4：校验素材闭包**
 
-  确认 `asset-mapping.json` 中的每个目标文件存在、`Home.tsx` 中的每个 `/manus-storage/` 文件已登记、已删除两张截图不再出现；确认 `THIRD_PARTY_NOTICES.md` 明确排除第三方素材的 MIT 覆盖范围。
+  确认 `asset-mapping.json` 中的每个目标文件存在、`Home.tsx` 中的每个 `/manus-storage/` 文件已登记、已删除三张截图不再出现在当前代码中；确认 `THIRD_PARTY_NOTICES.md` 明确排除第三方素材的 MIT 覆盖范围。
 
 - [ ] **步骤 5：确认审计门禁**
 
@@ -397,12 +399,12 @@
 
 - [ ] **步骤 4：按验证证据交付结果**
 
-  最终说明实际完成的本地文件、删除的两张截图、许可证状态、当前/历史扫描结果、测试结果、GitHub 设置、Release 链接和任何仍受账户计划或认证影响的能力；区分本地静态文件、Actions 运行和 GitHub 平台真实状态。
+  最终说明实际完成的本地文件、删除的三张截图、许可证状态、当前/历史扫描结果、测试结果、GitHub 设置、Release 链接和任何仍受账户计划或认证影响的能力；区分本地静态文件、Actions 运行和 GitHub 平台真实状态。
 
 ## 全局完成门槛
 
 - `LICENSE` 首行是 `MIT License`，`package.json.license` 是 `MIT`。
-- 两张无明确再发布许可的闭源截图已删除，代码、映射和来源清单无残留引用。
+- 三张无明确素材级再发布许可的截图已从当前版本树删除，代码、映射和来源清单无残留发布引用。
 - README、贡献指南、行为准则、安全政策、Issue/PR 模板和第三方声明全部存在且为简体中文。
 - `pnpm check`、`VITE_APP_LOGO=... pnpm test`、`pnpm build` 和格式检查通过；既有网络测试的外部资源结果单独标注。
 - 当前文件和所有可达历史高置信度敏感扫描无真实凭据命中。
