@@ -185,4 +185,4 @@ pnpm build
 
 ## 许可证
 
-本项目使用 [MIT License](https://opensource.org/license/mit/) 发布。第三方项目名称、产品名称、截图和其他展示素材仍归其各自权利人所有；素材使用范围和来源记录见 [`asset_sources.md`](asset_sources.md)。
+本项目使用 [MIT License](LICENSE) 发布，标准许可证文本可参阅 [Open Source Initiative 的 MIT License](https://opensource.org/license/mit/)。第三方项目名称、产品名称、截图和其他展示素材仍归其各自权利人所有；素材使用范围和来源记录见 [`asset_sources.md`](asset_sources.md)。
