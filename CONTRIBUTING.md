@@ -25,11 +25,11 @@ fix/修正来源链接
 
 ```bash
 pnpm check
-pnpm test
+VITE_APP_LOGO=https://codewiki-qn4bmd4p.manus.space/manus-storage/codewiki-mark_myu2b3hi.png pnpm test
 pnpm build
 ```
 
-其中，`pnpm test` 运行服务端测试，`pnpm build` 会生成前端和服务端构建产物。涉及数据库时，运行数据库命令前必须确认 `DATABASE_URL` 指向的目标环境，避免误修改共享数据库。
+其中，`server/logo.test.ts` 会对 `VITE_APP_LOGO` 指向的 HTTPS 图片执行网络检查；`pnpm build` 会生成前端和服务端构建产物。涉及数据库时，运行数据库命令前必须确认 `DATABASE_URL` 指向的目标环境，避免误修改共享数据库。
 
 ## 内容、研究与素材
 

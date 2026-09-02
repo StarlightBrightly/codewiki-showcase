@@ -84,6 +84,7 @@ pnpm start
 | `PORT`                        | 服务端首选监听端口，默认从 `3000` 开始             | 可选                             |
 | `NODE_ENV`                    | 区分开发模式和生产模式；项目脚本会自动设置         | 通常由脚本设置                   |
 | `VITE_APP_ID`                 | OAuth 应用标识；前端发起登录、服务端签发会话时使用 | 启用登录时需要                   |
+| `VITE_APP_LOGO`               | Logo 测试使用的 HTTPS 图片地址                     | 运行 Logo 网络测试时需要         |
 | `VITE_OAUTH_PORTAL_URL`       | 前端 OAuth 登录入口地址                            | 启用前端登录时需要               |
 | `OAUTH_SERVER_URL`            | 服务端交换授权码和读取用户信息的 OAuth 服务地址    | 启用登录时需要                   |
 | `JWT_SECRET`                  | 签发和验证登录会话 Cookie 的密钥                   | 启用登录时需要                   |
