@@ -1,0 +1,16 @@
+name: Dependency Review
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  review:
+    name: review
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检查依赖变更
+        uses: actions/dependency-review-action@v4
