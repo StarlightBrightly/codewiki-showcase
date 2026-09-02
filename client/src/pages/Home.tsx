@@ -396,7 +396,7 @@ export default function Home() {
           <div className="hero-brand-mark" aria-label="Code Wiki 分享标志"><img src="/manus-storage/codewiki-mark_myu2b3hi.png" alt="" /><span>FIELD<br />INDEX</span></div>
           <div className="hero-content">
             <div className="eyebrow light"><span className="eyebrow-dot" /> 10 MIN TECH SHARE · 2026.09</div>
-            <h1>理解代码库，<br /><em>先分清工具的边界。</em></h1>
+            <h1>代码库很大，<br /><em>让它来回答你的问题。</em></h1>
             <p className="hero-lede">这次分享将 Code Wiki 工具分为两组：可阅读和改造的开源项目，以及通过产品、桌面端与 MCP 接入的闭源服务。</p>
             <div className="hero-actions">
               <button
